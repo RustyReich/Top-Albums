@@ -21,7 +21,7 @@ if (current_url.indexOf("#") == -1) {
 
     //Set client ID and redirect_uri for the Spotify web app
     var client_id = 'cd65bb285db248e4b6352828ac986b66';
-    var redirect_uri = 'https://rustyreich.github.io/Top-Spotify-Albums/'
+    var redirect_uri = current_url
 
     //Generate random 16-character string for state
     var state = generateRandomString(16);

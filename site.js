@@ -1,3 +1,4 @@
+//Class definition for an entry in the ALBUM_LIST array
 class album_entry {
 
     constructor(album) {
@@ -20,8 +21,8 @@ const CURRENT_URL = window.location.href;
 const ACCESS_TOKEN = CURRENT_URL.substring(CURRENT_URL.indexOf("=") + 1, CURRENT_URL.indexOf("&"))
 
 const MAX_REQUESTS_AT_A_TIME = 50;
-const TRACK_REQUESTS_AT_A_TIME = 50;
 
+//Variables used for receiving and storing tracks and albums
 var ALBUM_LIST = []
 var TOTAL_TRACKS = Infinity
 var TRACKS_RECEIVED = 0
@@ -42,8 +43,8 @@ function main() {
         var stateKey = 'spotify_auth_state';
         localStorage.setItem(stateKey, state);
 
-        //user-library-read is the only scope that needs to be requested in order to get the
-        //users saved tracks
+        //user-library-read is the only scope that needs to be requested in order to get the users saved
+        //tracks
         var scope = 'user-library-read';
 
         //Add "Login to Spotify" button
@@ -69,155 +70,13 @@ function main() {
     }
     else {
 
+        //Request all the users tracks, and call printResults after all tracks have been receieved
         requestAllTracks(printResults)
 
-/*
-        while (tracks_remaining > 0) {
-            console.log(TOTAL_TRACKS)
-            if (TOTAL_TRACKS != Infinity) {
-
-                requestTracks(TRACK_REQUESTS_AT_A_TIME, offset)
-                tracks_remaining = TOTAL_TRACKS - offset - TRACK_REQUESTS_AT_A_TIME
-                offset += TRACK_REQUESTS_AT_A_TIME
-                
-            }
-
-        }
-*/
     }
 
 }
 
-/*
-//If url does not have "#" in it, then we have not clicked the login button yet
-if (CURRENT_URL.indexOf("#") == -1) {
-
-    //Set client ID and redirect_uri for the Spotify web app
-    var client_id = 'cd65bb285db248e4b6352828ac986b66';
-    var redirect_uri = CURRENT_URL
-
-    //Generate random 16-character string for state
-    var state = generateRandomString(16);
-
-    //Save stateKey with state
-    var stateKey = 'spotify_auth_state'
-    localStorage.setItem(stateKey, state);
-
-    //user-library-read is the only scope that needs to be requested in order to get the
-    //users saved tracks
-    var scope = 'user-library-read'
-
-    //Add "Login to Spotify" button
-    const button = document.createElement('button')
-    button.innerText = 'Login to Spotify'
-    button.id = 'loginButton'
-
-    //Redirect to "Authorization" spotify link upon clicking the button
-    button.addEventListener('click', () => {
-
-        var url = 'https://accounts.spotify.com/authorize';
-        url += '?response_type=token';
-        url += '&client_id=' + encodeURIComponent(client_id);
-        url += '&scope=' + encodeURIComponent(scope);
-        url += '&redirect_uri=' + encodeURIComponent(redirect_uri);
-        url += '&state=' + encodeURIComponent(state);
-
-        window.location = url
-
-    })
-    document.body.appendChild(button)
-
-}
-else {  //Otherwise, we've already clicked the login button and been redirected
-
-    const TRACK_REQUESTS_AT_A_TIME = 50
-
-    var tracks_remaining = Infinity
-    var offset = 0
-
-    var album_list = []
-
-    while (tracks_remaining > 0) {
-
-        var request_url = "https://api.spotify.com/v1/me/tracks?"
-        request_url += "limit=" + TRACK_REQUESTS_AT_A_TIME
-        request_url += "&offset=" + offset
-
-    }
-
-    //var request_url = "https://api.spotify.com/v1/me/tracks"
-
-    //loadFile(request_url, test)
-
-/*
-    //50 tracks is the maximum number that can be requested at a time
-    const TRACK_REQUESTS_AT_A_TIME = 50
-
-    //Variables and arrays for requesting and storing all user-saved tracks
-    var tracks_remaining = Infinity
-    var offset = 0
-    
-    var album_list = []
-
-    //While there are no more tracks remaining to request
-    while (tracks_remaining > 0) {
-
-        //Construct request url with proper limit and offset queury parameters
-        var request_url = "https://api.spotify.com/v1/me/tracks?";
-        request_url += "limit=" + TRACK_REQUESTS_AT_A_TIME
-        request_url += "&offset=" + offset
-
-        //Send request
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", request_url, false);
-        xmlHttp.setRequestHeader("Authorization", "Bearer " + access_token);
-        xmlHttp.send(null);
-        //Parse response into a javascript object
-        var raw_response = xmlHttp.responseText
-        var response = JSON.parse(raw_response)
-
-        document.getElementById("loading_bar").textContent = 
-            Math.round(100 * offset / response.total) + "%";
-
-        //Count the number of tracks receieved from the current request
-        var num_tracks_received = Object.keys(response).length
-
-        //Update number of tracks remaining
-        tracks_remaining = response.total - offset - num_tracks_received
-
-        for(var i = 0; i < num_tracks_received; i++) {
-
-            current_tracks_album = response.items[i].track.album
-
-            album_list_id = albumInList(album_list, current_tracks_album)
-
-            if (album_list_id == -1) {
-
-                var curr_album_entry = new album_entry(current_tracks_album)
-                album_list.push(curr_album_entry)
-
-            }
-            else
-                album_list[album_list_id].incrementCount()
-
-        }
-
-        //Increase offset by number of tracks received
-        offset = offset + num_tracks_received
-
-    }
-
-    document.getElementById("loading_bar").textContent = ""
-
-    var num_of_albums = Object.keys(album_list).length
-
-    quickSortAlbumList(album_list, 0, num_of_albums - 1)
-
-    for (var i = 0; i < num_of_albums; i++)
-        document.write(album_list[i].album.name +  " | " + album_list[i].getCount() + "<br>")
-
-}
-*/
 
 //Generate a random string of letters and digits that is the specified length
 function generateRandomString(length) {
@@ -231,6 +90,9 @@ function generateRandomString(length) {
 
 }
 
+//Check if an album is already in the ALBUM_LIST array
+    //Returns the index in the array if the album is in ALBUM_LIST
+    //Returns -1 if the album is not in ALBUM_LIST
 function albumInList(currAlbum) {
 
     var num_of_albums = Object.keys(ALBUM_LIST).length;
@@ -242,148 +104,183 @@ function albumInList(currAlbum) {
 
 }
 
-function quickSortAlbumList(album_list, low, hight) {
-
-    var album_count = Object.keys(album_list).length;
+//Sort ALBUM_LIST by number of tracks saved in album
+function quickSortAlbumList(low, hight) {
 
     if (low < hight) {
 
-        var pi = partition(album_list, low, hight);
+        var pi = partition(low, hight);
 
-        quickSortAlbumList(album_list, low, pi - 1);
-        quickSortAlbumList(album_list, pi + 1, hight);
+        quickSortAlbumList(low, pi - 1);
+        quickSortAlbumList(pi + 1, hight);
 
     }
 
-}
+    function partition(low, high) {
 
-function partition(album_list, low, high) {
-
-    var pivot = album_list[high];
-    var i = (low - 1);
-
-    for (var j = low; j <= high - 1; j++) {
-
-        if (album_list[j].count > pivot.count) {
-
-            i++;
-            swap(album_list, i, j);
-
+        var pivot = ALBUM_LIST[high];
+        var i = (low - 1);
+    
+        for (var j = low; j <= high - 1; j++) {
+    
+            if (ALBUM_LIST[j].count > pivot.count) {
+    
+                i++;
+                swap(i, j);
+    
+            }
+    
         }
-
+    
+        swap(i + 1, high);
+        return (i + 1);
+    
+    }
+    
+    function swap(i, j) {
+    
+        var temp = ALBUM_LIST[i];
+        ALBUM_LIST[i] = ALBUM_LIST[j];
+        ALBUM_LIST[j] = temp;
+    
     }
 
-    swap(album_list, i + 1, high);
-    return (i + 1);
-
 }
 
-function swap(album_list, i, j) {
-
-    var temp = album_list[i];
-    album_list[i] = album_list[j];
-    album_list[j] = temp;
-
-}
-
+//Print results to the page
 function printResults() {
-    console.log("test")
+
     document.getElementById("loading_bar").textContent = ""
 
     var num_of_albums = Object.keys(ALBUM_LIST).length
+    console.log(num_of_albums)
     
-    quickSortAlbumList(ALBUM_LIST, 0, num_of_albums - 1)
+    quickSortAlbumList(0, num_of_albums - 1)
 
     for (var i = 0; i < num_of_albums; i++)
         document.write(ALBUM_LIST[i].album.name + " | " + ALBUM_LIST[i].getCount() + "<br>")
 
 }
 
+//Request all tracks saved by the user
+    //callback is the function to be called after all tracks have been received
 function requestAllTracks(callback) {
 
+    //Send request for first MAX_REQUEST_AT_A_TIME number of tracks
+        //requestRemaining is passed as the callback so that it gets called after the first set of tracks
+        //have been received
     sendRequest(MAX_REQUESTS_AT_A_TIME, 0, requestRemaining, callback)
 
 }
 
+//Function to be called after the first set of tracks have been receieved.
+    //The first set of tracks must be receieved separately so that we can find out how many TOTAL_TRACKS 
+    //there are.
+    //Once we know TOTAL_TRACKS, we can send requests for all other tracks
+        //callback is the function to be called after all responses have been received
 function requestRemaining(callback) {
 
+    //As long as there are still more tracks to received, keep sending requests
     if (TOTAL_TRACKS > TRACKS_RECEIVED) {
 
+        //Make sure to not request more tracks than are remaining
         if (MAX_REQUESTS_AT_A_TIME > TOTAL_TRACKS - TRACKS_RECEIVED)
             sendRequest(TOTAL_TRACKS - TRACKS_RECEIVED, TRACKS_RECEIVED, requestRemaining, callback);
         else
             sendRequest(MAX_REQUESTS_AT_A_TIME, TRACKS_RECEIVED, requestRemaining, callback)
 
     }
-    else
+    else    //Once we have receieved all tracks, call the callback function
         if (typeof callback == 'function')
             callback();
 
 }
 
+//Funcion that actually sends the requests for tracks
+    //amount is the number of tracks to request
+    //offset is the index of the first track
+    //callback is the function to run after the current request has received a response
+    //args are the arguments to that callback function
 function sendRequest(amount, offset, callback, ...args) {
 
+    //Craft request url
     var request_url = "https://api.spotify.com/v1/me/tracks?";
     request_url += "&limit=" + amount;
     request_url += "&offset=" + offset;
 
     const xhr = new XMLHttpRequest();
 
+    //receieveResponse gets called once the request has receieved a response
     xhr.callback = receieveResponse;
+    //We pass callback and its arguments to receieveResponse 
     xhr.arguments = Array.prototype.slice.call(arguments, 2)
     xhr.onload = xhrSuccess;
     xhr.onerror = xhrError;
 
+    //Make sure to include ACCESS_TOKEN in headers
     xhr.open("GET", request_url, true);
     xhr.setRequestHeader("Authorization", "Bearer " + ACCESS_TOKEN);
     xhr.send(null)
 
 }
 
+//Function that gets called once a response for a request has been receieved
 function receieveResponse(callback, ...args) {
 
+    //Conver JSON response into object
     const raw_response = this.responseText;
     const response = JSON.parse(raw_response);
 
+    //Save total number of tracks
     TOTAL_TRACKS = response.total;
 
+    //Count the number of tracks that were receieved in the response
     const num_tracks_received = Object.keys(response.items).length;
-    //document.write(raw_response)
-    //console.log("num_tracks_receieved: " + num_tracks_received)
-    //console.log("limit: " + response.limit)
+
+    //For every track received in the current response
     for (var i = 0; i < num_tracks_received; i++) {
 
+        //Check if the current tracks album is already in the ALBUM_LIST array
         current_tracks_album = response.items[i].track.album;
-
         album_list_id = albumInList(current_tracks_album);
 
+        //If it is not in the array
         if (album_list_id == -1) {
 
+            //Push the album onto the array
             const curr_album_entry = new album_entry(current_tracks_album);
             ALBUM_LIST.push(curr_album_entry);
 
         }
-        else
+        else    //If it is in the array already, then increment the count for the album
             ALBUM_LIST[album_list_id].incrementCount();
 
     }
 
+    //Keep track of the number of tracks receieved so far
     TRACKS_RECEIVED += num_tracks_received;
 
+    //Update the loading bar
     document.getElementById("loading_bar").textContent = Math.round(100*TRACKS_RECEIVED/TOTAL_TRACKS) + "%";
 
+    //Call the callback function if it is present
     if (typeof callback == 'function')
     {
 
+        //Callback should only ever be passed here with a single or no arguments. If there is a single
+        //argument, that argument should be another callback function.
+            //So here, we just check if that argument is there, and call callback() with that argument if
+            //it is there
         if (typeof arguments[1] == 'function')
             callback(arguments[1]);
-        else
+        else    //If it's not there, just call callback() with no argument
             callback();
 
     }
 
 }
 
+//Functions for handling successes and errors of sending http requests
 function xhrSuccess() { this.callback.apply(this, this.arguments); }
 function xhrError() { console.error(this.statusText); }
 

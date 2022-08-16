@@ -47,10 +47,7 @@ function main() {
         //tracks
         var scope = 'user-library-read';
 
-        //Add "Login to Spotify" button
-        const button = document.createElement('button');
-        button.innerText = 'Login to Spotify';
-        button.id = 'loginButton';
+        const button = document.getElementById("login_button");
 
         //Redirect to "Authorization" spotify link upon clicking the button
         button.addEventListener('click', () => {

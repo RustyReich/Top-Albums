@@ -47,10 +47,16 @@ function main() {
         //tracks
         var scope = 'user-library-read';
 
-        const button = document.getElementById("login_button");
+        const github_button = document.getElementById("github_button");
+        github_button.addEventListener('click', () => {
 
-        //Redirect to "Authorization" spotify link upon clicking the button
-        button.addEventListener('click', () => {
+            window.location = "https://github.com/RustyReich/Top-Spotify-Albums";
+
+        })
+
+        //Redirect to "Authorization" spotify link upon clicking login_button
+        const login_button = document.getElementById("login_button");
+        login_button.addEventListener('click', () => {
 
             var url = 'https://accounts.spotify.com/authorize';
             url += '?response_type=token';
@@ -62,7 +68,6 @@ function main() {
             window.location = url;
 
         })
-        document.body.appendChild(button);
 
     }
     else {

@@ -32,6 +32,9 @@ function main() {
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
 
+        const loading_bar = document.getElementById("loading_bar");
+        loading_bar.remove()
+
         //Set client ID and redirect_uri for the Spotify web app
         var client_id = 'cd65bb285db248e4b6352828ac986b66';
         var redirect_uri = CURRENT_URL;
@@ -71,6 +74,12 @@ function main() {
 
     }
     else {
+
+        const main_square = document.getElementById("main_square")
+        main_square.remove()
+
+        const loading_bar_moving_circle = document.getElementById("loading_bar_moving_circle")
+        setInterval(updateLoadingBar, 1, loading_bar_moving_circle)
 
         //Request all the users tracks, and call printResults after all tracks have been receieved
         requestAllTracks(printResults)
@@ -152,10 +161,9 @@ function quickSortAlbumList(low, hight) {
 //Print results to the page
 function printResults() {
 
-    document.getElementById("loading_bar").textContent = ""
+    document.getElementById("loading_bar").remove()
 
     var num_of_albums = Object.keys(ALBUM_LIST).length
-    console.log(num_of_albums)
     
     quickSortAlbumList(0, num_of_albums - 1)
 
@@ -262,9 +270,6 @@ function receieveResponse(callback, ...args) {
     //Keep track of the number of tracks receieved so far
     TRACKS_RECEIVED += num_tracks_received;
 
-    //Update the loading bar
-    document.getElementById("loading_bar").textContent = Math.round(100*TRACKS_RECEIVED/TOTAL_TRACKS) + "%";
-
     //Call the callback function if it is present
     if (typeof callback == 'function')
     {
@@ -279,6 +284,30 @@ function receieveResponse(callback, ...args) {
             callback();
 
     }
+
+}
+
+var TICKS_SPENT_LOADING = 0
+
+function updateLoadingBar(element) {
+
+    const vmin = Math.min(window.innerWidth, window.innerHeight);
+    const radius = 9.3;
+    const TICKS_PER_ROTATION = 240;
+    const PI = 3.14159
+
+    t = TICKS_SPENT_LOADING / TICKS_PER_ROTATION * 2 * PI
+    
+    x = Math.cos(t)
+    y = Math.sin(t)
+
+    element.style.bottom = x * radius + "vmin";
+    element.style.left = y * radius + "vmin";
+
+    TICKS_SPENT_LOADING++;
+
+    const loading_bar_percentage = document.getElementById("loading_bar_percentage");
+    loading_bar_percentage.textContent = Math.round(100 * TRACKS_RECEIVED / TOTAL_TRACKS);
 
 }
 

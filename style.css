@@ -33,6 +33,7 @@
     overflow: hidden;
 
     font-size: 1vmin;
+    text-decoration: none;
 
     border: none;
 
@@ -107,7 +108,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 1.4vmin;
+    font-size: 1.3vmin;
     cursor: pointer;
 
 }
@@ -118,12 +119,108 @@
 
 }
 
-.loading_bar {
+.loading_bar_outside_circle {
+
+    background-color: #1db954;
+    color: white;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    width: 10vmin;
+    height: 10vmin;
+
+    border-radius: 50%;
+
+}
+
+.loading_bar_middle_circle {
+
+    background-color: #181818;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    width: 9.8vmin;
+    height: 9.8vmin;
+
+    border-radius: 50%;
+
+}
+
+.loading_bar_inner_circle {
+
+    background-color: #1db954;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    width: 8.5vmin;
+    height: 8.5vmin;
+
+    border-radius: 50%;
+
+}
+
+.loading_bar_center_circle {
+
+    background-color: #282828;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    width: 8.3vmin;
+    height: 8.3vmin;
+
+    border-radius: 50%;
+
+}
+
+.loading_bar_moving_circle {
+
+    background-color: white;
+
+    position: absolute;
+    top: 0;
+    bottom: 9.3vmin;
+    left: 0;
+    right: 0;
+    margin: auto;
+
+    width: 0.5vmin;
+    height: 0.5vmin;
+
+    border-radius: 50%;
+
+}
+
+.loading_bar_percentage {
 
     color: white;
 
     position: absolute;
-    top: 50px;
-    margin: auto;
+    margin: 0;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    font-size: 4vmin;
 
 }

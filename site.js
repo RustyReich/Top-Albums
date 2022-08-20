@@ -32,8 +32,8 @@ function main() {
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
 
-        const loading_bar = document.getElementById("loading_bar");
-        loading_bar.remove()
+        document.getElementById("loading_bar").style.display = "none";
+        document.getElementById("album_images").style.display = "none";
 
         //Set client ID and redirect_uri for the Spotify web app
         var client_id = 'cd65bb285db248e4b6352828ac986b66';
@@ -75,8 +75,7 @@ function main() {
     }
     else {
 
-        const main_square = document.getElementById("main_square")
-        main_square.remove()
+        document.getElementById("main_square").style.display = "none"
 
         const loading_bar_moving_circle = document.getElementById("loading_bar_moving_circle")
         setInterval(updateLoadingBar, 1, loading_bar_moving_circle)
@@ -161,14 +160,42 @@ function quickSortAlbumList(low, hight) {
 //Print results to the page
 function printResults() {
 
-    document.getElementById("loading_bar").remove()
+    document.getElementById("loading_bar").style.display = "none"
 
     var num_of_albums = Object.keys(ALBUM_LIST).length
     
     quickSortAlbumList(0, num_of_albums - 1)
 
-    for (var i = 0; i < num_of_albums; i++)
-        document.write(ALBUM_LIST[i].album.name + " | " + ALBUM_LIST[i].getCount() + "<br>")
+    const main_square = document.getElementById("main_square");
+    main_square.style.display = "block";
+
+    document.getElementById("main_square_text").style.display = "none"
+    document.getElementById("login_button").style.display = "none"
+
+    main_square.style.width = "98%";
+    main_square.style.height = "90vmin";
+    main_square.style.position = "fixed";
+    main_square.style.margin = "0";
+    main_square.style.left = "1%";
+    main_square.style.top = "9vmin";
+
+    main_square.style.color = "white";
+    main_square.style.textAlign = "left";
+    main_square.style.paddingLeft = "2vmin";
+    main_square.style.fontSize = "2vmin";
+    main_square.style.fontFamily = "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif";
+    main_square.style.whiteSpace = "pre-line"
+
+    var album_images = [];
+    document.getElementById("album_images").display = "block"
+    for (var i = 0; i < num_of_albums; i++) {
+
+        album_images[i] = new Image();
+        album_images[i].src = ALBUM_LIST[i].album.images[0].url;
+
+        document.getElementById("album_images").append(album_images[i]);
+
+    }
 
 }
 
@@ -292,7 +319,7 @@ var TICKS_SPENT_LOADING = 0
 function updateLoadingBar(element) {
 
     const vmin = Math.min(window.innerWidth, window.innerHeight);
-    const radius = 9.3;
+    const radius = 9.3; //Change this to grab radius from initial bottom value
     const TICKS_PER_ROTATION = 240;
     const PI = 3.14159
 

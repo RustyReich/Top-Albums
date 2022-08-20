@@ -33,6 +33,7 @@
     overflow: hidden;
 
     font-size: 1vmin;
+    color: black;
     text-decoration: none;
 
     border: none;
@@ -62,6 +63,29 @@
     height: 50vmin;
 
     border-radius: 3vmin;
+
+    overflow: scroll;
+
+}
+
+#album_images {
+
+    position: relative;
+
+    height: auto;
+    width: 100%;
+
+}
+
+#album_images img {
+
+    background-color: #282828;
+
+    width: 20%;
+    height: auto;
+    display:table;
+
+    padding-top: 1vmin;
 
 }
 
@@ -101,7 +125,7 @@
     white-space: nowrap;
     overflow: hidden;
 
-    border: 3px solid #1db954;
+    border: 0.5vmin solid #1db954;
     border-radius: 5vmin;
     color: white;
     

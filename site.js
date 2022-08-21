@@ -173,27 +173,45 @@ function printResults() {
     document.getElementById("login_button").style.display = "none"
 
     main_square.style.width = "98%";
-    main_square.style.height = "90vmin";
+    main_square.style.height = "90%";
     main_square.style.position = "fixed";
-    main_square.style.margin = "0";
     main_square.style.left = "1%";
     main_square.style.top = "9vmin";
 
     main_square.style.color = "white";
     main_square.style.textAlign = "left";
-    main_square.style.paddingLeft = "2vmin";
     main_square.style.fontSize = "2vmin";
     main_square.style.fontFamily = "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif";
     main_square.style.whiteSpace = "pre-line"
+    main_square.style.overflowY = "scroll"
+    main_square.style.overflowX = "hidden"
 
-    var album_images = [];
     document.getElementById("album_images").display = "block"
     for (var i = 0; i < num_of_albums; i++) {
 
-        album_images[i] = new Image();
-        album_images[i].src = ALBUM_LIST[i].album.images[0].url;
+        var div = document.createElement("div");
+        div.style.width = "98.5%";
+        div.style.height = "20vmin";
+        div.style.background = "#282828";
+        div.style.color = "white";
+        div.style.borderRadius = "1vmin"
+        
+        if (i != 0)
+            div.style.marginTop = "1vmin";
 
-        document.getElementById("album_images").append(album_images[i]);
+        img = new Image();
+        img.src = ALBUM_LIST[i].album.images[0].url;
+        div.appendChild(img);
+
+        var name = document.createElement("h1");
+        name.textContent = ALBUM_LIST[i].album.name;
+        div.appendChild(name);
+
+        var count = document.createElement("h2");
+        count.textContent = ALBUM_LIST[i].getCount() + " songs saved";
+        div.appendChild(count);
+
+        document.getElementById("album_images").appendChild(div);
 
     }
 

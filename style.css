@@ -4,7 +4,6 @@
 
     position: fixed;
     left: 1%;
-    right: 0px;
     top: 1vmin;
 
     height: 7vmin;
@@ -64,28 +63,55 @@
 
     border-radius: 3vmin;
 
-    overflow: scroll;
-
 }
 
 #album_images {
 
     position: relative;
 
+    padding-left: 1vmin;
+
     height: auto;
-    width: 100%;
 
 }
 
 #album_images img {
 
-    background-color: #282828;
+    position: relative;
+    margin: 0;
+    top: 50%;
+    left: 10vmin;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 
-    width: 20%;
-    height: auto;
-    display:table;
+    width: auto;
+    height: 90%;
 
-    padding-top: 1vmin;
+}
+
+#album_images h1 {
+
+    position: relative;
+    margin: 0;
+    top: -75%;
+    left: 21vmin;
+
+    max-width: 75%;
+
+    font-size: 3vmin;
+
+}
+
+#album_images h2 {
+
+    position: relative;
+    margin: 0;
+    top: -25%;
+    left: 21vmin;
+
+    max-width: 75%;
+
+    font-size: 2vmin;
 
 }
 

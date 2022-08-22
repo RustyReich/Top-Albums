@@ -207,11 +207,30 @@ function printResults() {
         name.textContent = ALBUM_LIST[i].album.name;
         div.appendChild(name);
 
-        var count = document.createElement("h2");
+        var band = document.createElement("h2");
+        band.textContent = ALBUM_LIST[i].album.artists[0].name;
+        div.appendChild(band);
+
+        var count = document.createElement("h3");
         count.textContent = ALBUM_LIST[i].getCount() + " songs saved";
         div.appendChild(count);
 
         document.getElementById("album_images").appendChild(div);
+
+        //Resize name to fit div
+        name.style.fontSize = getComputedStyle(name).fontSize;
+        while (getEndOfText(name) > div.offsetWidth)
+            name.style.fontSize = pixelsToNumber(getComputedStyle(name).fontSize) - 1 + "px";
+
+        //Resize band to fit div
+        band.style.fontSize = getComputedStyle(band).fontSize;
+        while (getEndOfText(band) > div.offsetWidth)
+            band.style.fontSize = pixelsToNumber(getComputedStyle(band).fontSize) - 1 + "px";
+
+        //Resize count to fit div
+        count.style.fontSize = getComputedStyle(count).fontSize;
+        while (getEndOfText(count) > div.offsetWidth)
+            count.style.fontSize = pixelsToNumber(getComputedStyle(count).fontSize) - 1 + "px";
 
     }
 
@@ -353,6 +372,36 @@ function updateLoadingBar(element) {
 
     const loading_bar_percentage = document.getElementById("loading_bar_percentage");
     loading_bar_percentage.textContent = Math.round(100 * TRACKS_RECEIVED / TOTAL_TRACKS);
+
+}
+
+function pixelsToNumber(string) {
+
+    return Number(string.substring(0, string.indexOf("px")));
+
+}
+
+function getEndOfText(element) {
+
+    var offset = pixelsToNumber(getComputedStyle(element).left);
+
+    return getTextWidth(element) + offset;
+
+}
+
+function getTextWidth(element) {
+
+    canvas = document.createElement("canvas");
+    context = canvas.getContext("2d");
+    context.font = getComputedStyle(element).font;
+
+    return context.measureText(element.textContent).width;
+
+}
+
+function resizeOverwrapText() {
+
+
 
 }
 

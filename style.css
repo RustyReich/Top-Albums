@@ -79,10 +79,8 @@
 
     position: relative;
     margin: 0;
-    top: 50%;
-    left: 10vmin;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    top: 1vmin;
+    left: 1vmin;
 
     width: auto;
     height: 90%;
@@ -93,7 +91,22 @@
 
     position: relative;
     margin: 0;
-    top: -75%;
+    bottom: 90%;
+    left: 21vmin;
+
+    max-width: 75%;
+    
+    font-size: 4vmin;
+
+    white-space: nowrap;
+
+}
+
+#album_images h2 {
+
+    position: relative;
+    margin: 0;
+    bottom: 87%;
     left: 21vmin;
 
     max-width: 75%;
@@ -102,11 +115,11 @@
 
 }
 
-#album_images h2 {
+#album_images h3 {
 
     position: relative;
     margin: 0;
-    top: -25%;
+    bottom: 50%;
     left: 21vmin;
 
     max-width: 75%;

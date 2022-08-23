@@ -188,7 +188,10 @@ function printResults() {
     main_square.style.overflowX = "hidden"
 
     document.getElementById("album_images").display = "block"
-    for (var i = 0; i < num_of_albums; i++) {
+
+    var album_id = 0;
+    const LOADING_ALBUMS_INTERVAL = setInterval(loadAlbum, 1);
+    function loadAlbum() {
 
         var div = document.createElement("div");
         div.style.width = "98.5%";
@@ -197,23 +200,23 @@ function printResults() {
         div.style.color = "white";
         div.style.borderRadius = "1vmin"
         
-        if (i != 0)
+        if (album_id != 0)
             div.style.marginTop = "1vmin";
 
         img = new Image();
-        img.src = ALBUM_LIST[i].album.images[0].url;
+        img.src = ALBUM_LIST[album_id].album.images[0].url;
         div.appendChild(img);
 
         var name = document.createElement("h1");
-        name.textContent = ALBUM_LIST[i].album.name;
+        name.textContent = ALBUM_LIST[album_id].album.name;
         div.appendChild(name);
 
         var band = document.createElement("h2");
-        band.textContent = ALBUM_LIST[i].album.artists[0].name;
+        band.textContent = ALBUM_LIST[album_id].album.artists[0].name;
         div.appendChild(band);
 
         var count = document.createElement("h3");
-        count.textContent = ALBUM_LIST[i].getCount() + " songs saved";
+        count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
         document.getElementById("album_images").appendChild(div);
@@ -221,11 +224,15 @@ function printResults() {
         var num_of_chars = name.textContent.length
         var max_width_in_pixels = div.clientWidth - pixelsToNumber(getComputedStyle(name).left)
         var max_character_width_in_pixels = max_width_in_pixels / num_of_chars
-        var max_font_size = 2 * max_character_width_in_pixels * 0.8;
+        var max_font_size = 2 * max_character_width_in_pixels * 0.75;
 
         if (pixelsToNumber(getComputedStyle(name).fontSize) > max_font_size)
             name.style.fontSize = pixelsToVmin(max_font_size) + "vmin"
 
+        if (album_id < num_of_albums - 1)
+            album_id = album_id + 1;
+        else
+            clearInterval(LOADING_ALBUMS_INTERVAL);
     }
 
     clearInterval(LOADING_BAR_INTERVAL);
@@ -348,11 +355,9 @@ function receieveResponse(callback, ...args) {
 }
 
 var TICKS_SPENT_LOADING = 0
-
+var LOADING_BAR_RADIUS = pixelsToVmin(getComputedStyle(loading_bar_moving_circle).bottom);
 function updateLoadingBar() {
 
-    const vmin = Math.min(window.innerWidth, window.innerHeight);
-    const radius = 9.3; //Change this to grab radius from initial bottom value
     const TICKS_PER_ROTATION = 240;
     const PI = 3.14159
 
@@ -361,9 +366,8 @@ function updateLoadingBar() {
     x = Math.cos(t)
     y = Math.sin(t)
 
-    const loading_bar_moving_circle = document.getElementById("loading_bar_moving_circle");
-    loading_bar_moving_circle.style.bottom = x * radius + "vmin";
-    loading_bar_moving_circle.style.left = y * radius + "vmin";
+    loading_bar_moving_circle.style.bottom = x * LOADING_BAR_RADIUS + "vmin";
+    loading_bar_moving_circle.style.left = y * LOADING_BAR_RADIUS + "vmin";
 
     TICKS_SPENT_LOADING++;
 
@@ -380,6 +384,8 @@ function pixelsToNumber(string) {
 
 function pixelsToVmin(num_of_pixels) {
 
+    if (typeof num_of_pixels === 'string' || num_of_pixels instanceof String)
+        num_of_pixels = pixelsToNumber(num_of_pixels)
     return num_of_pixels * 100 / Math.min(window.innerWidth, window.innerHeight);
 
 }

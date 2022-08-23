@@ -27,6 +27,8 @@ var ALBUM_LIST = []
 var TOTAL_TRACKS = Infinity
 var TRACKS_RECEIVED = 0
 
+var LOADING_BAR_INTERVAL;
+
 function main() {
 
     //If url does not have "#" in it, then we have not clicked the login button yet
@@ -77,8 +79,7 @@ function main() {
 
         document.getElementById("main_square").style.display = "none"
 
-        const loading_bar_moving_circle = document.getElementById("loading_bar_moving_circle")
-        setInterval(updateLoadingBar, 1, loading_bar_moving_circle)
+        LOADING_BAR_INTERVAL = setInterval(updateLoadingBar, 1)
 
         //Request all the users tracks, and call printResults after all tracks have been receieved
         requestAllTracks(printResults)
@@ -217,22 +218,17 @@ function printResults() {
 
         document.getElementById("album_images").appendChild(div);
 
-        //Resize name to fit div
-        name.style.fontSize = getComputedStyle(name).fontSize;
-        while (getEndOfText(name) > div.offsetWidth)
-            name.style.fontSize = pixelsToNumber(getComputedStyle(name).fontSize) - 1 + "px";
+        var num_of_chars = name.textContent.length
+        var max_width_in_pixels = div.clientWidth - pixelsToNumber(getComputedStyle(name).left)
+        var max_character_width_in_pixels = max_width_in_pixels / num_of_chars
+        var max_font_size = 2 * max_character_width_in_pixels * 0.8;
 
-        //Resize band to fit div
-        band.style.fontSize = getComputedStyle(band).fontSize;
-        while (getEndOfText(band) > div.offsetWidth)
-            band.style.fontSize = pixelsToNumber(getComputedStyle(band).fontSize) - 1 + "px";
-
-        //Resize count to fit div
-        count.style.fontSize = getComputedStyle(count).fontSize;
-        while (getEndOfText(count) > div.offsetWidth)
-            count.style.fontSize = pixelsToNumber(getComputedStyle(count).fontSize) - 1 + "px";
+        if (pixelsToNumber(getComputedStyle(name).fontSize) > max_font_size)
+            name.style.fontSize = pixelsToVmin(max_font_size) + "vmin"
 
     }
+
+    clearInterval(LOADING_BAR_INTERVAL);
 
 }
 
@@ -353,7 +349,7 @@ function receieveResponse(callback, ...args) {
 
 var TICKS_SPENT_LOADING = 0
 
-function updateLoadingBar(element) {
+function updateLoadingBar() {
 
     const vmin = Math.min(window.innerWidth, window.innerHeight);
     const radius = 9.3; //Change this to grab radius from initial bottom value
@@ -365,8 +361,9 @@ function updateLoadingBar(element) {
     x = Math.cos(t)
     y = Math.sin(t)
 
-    element.style.bottom = x * radius + "vmin";
-    element.style.left = y * radius + "vmin";
+    const loading_bar_moving_circle = document.getElementById("loading_bar_moving_circle");
+    loading_bar_moving_circle.style.bottom = x * radius + "vmin";
+    loading_bar_moving_circle.style.left = y * radius + "vmin";
 
     TICKS_SPENT_LOADING++;
 
@@ -381,27 +378,9 @@ function pixelsToNumber(string) {
 
 }
 
-function getEndOfText(element) {
+function pixelsToVmin(num_of_pixels) {
 
-    var offset = pixelsToNumber(getComputedStyle(element).left);
-
-    return getTextWidth(element) + offset;
-
-}
-
-function getTextWidth(element) {
-
-    canvas = document.createElement("canvas");
-    context = canvas.getContext("2d");
-    context.font = getComputedStyle(element).font;
-
-    return context.measureText(element.textContent).width;
-
-}
-
-function resizeOverwrapText() {
-
-
+    return num_of_pixels * 100 / Math.min(window.innerWidth, window.innerHeight);
 
 }
 

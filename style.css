@@ -93,8 +93,6 @@
     margin: 0;
     bottom: 90%;
     left: 21vmin;
-
-    max-width: 75%;
     
     font-size: 4vmin;
 
@@ -109,8 +107,6 @@
     bottom: 87%;
     left: 21vmin;
 
-    max-width: 75%;
-
     font-size: 3vmin;
 
 }
@@ -119,10 +115,8 @@
 
     position: relative;
     margin: 0;
-    bottom: 50%;
+    bottom: 55%;
     left: 21vmin;
-
-    max-width: 75%;
 
     font-size: 2vmin;
 

@@ -153,15 +153,6 @@ function quickSortAlbumList(low, hight) {
 //Print results to the page
 function printResults() {
 
-    //Set up an interval to resize all text in album_images div when the window is resized
-    var WINDOW_RESIZED_INTERVAL;
-    window.onresize = function() {
-        //It waits until the window has not been resized in 100ms before calling resizeAllText()
-            //This is so we can make the assumption that the user is done resizing the window
-        clearTimeout(WINDOW_RESIZED_INTERVAL);
-        WINDOW_RESIZED_INTERVAL = setTimeout(function() { resizeAllText(); }, 100);
-    };
-
     //Hide the loading bar
     document.getElementById("loading_bar").style.display = "none"
 
@@ -197,6 +188,15 @@ function printResults() {
 
     //Set album_images div to be displayed
     document.getElementById("album_images").display = "block"
+
+    //Set up an interval to resize all text in album_images div when the window is resized
+    var WINDOW_RESIZED_INTERVAL;
+    window.onresize = function() {
+        clearTimeout(WINDOW_RESIZED_INTERVAL);
+        WINDOW_RESIZED_INTERVAL = setTimeout(function() { resizeOnScreenText(); }, 100);
+    };
+    
+    main_square.onscroll = function() { resizeOnScreenText(); }
 
     //Load all albums into the album_images div
     var album_id = 0;
@@ -254,6 +254,7 @@ function printResults() {
             album_id = album_id + 1;
         else
             clearInterval(LOADING_ALBUMS_INTERVAL);
+
     }
 
     //clear LOADING_BAR_INTERVAL once we are done loading all tracks
@@ -492,19 +493,12 @@ function fitText(div, text_element) {
 
 }
 
-//Function for resizing all of the text in the children of the album_images div
-function resizeAllText() {
+function resizeOnScreenText() {
 
-    //Get the number of albums
-    const num_of_albums = Object.keys(ALBUM_LIST).length;
+    const on_screen_album_ids = getOnScreenAlbumIDs();
+    const num_of_albums = Object.keys(on_screen_album_ids).length;
 
-    //Resize one div at a time, every 1 ms to ensure page responsiveness
-        //A side effect of this is that the lower on the list a div is, the longer it will take to
-        //resize.
-            //I assume, however, that the top-most albums will be the most looked at so
-            //hopefully this isn't a huge issue. It's probably possible to only resize the divs
-            //that are currently visible on screen if this proves a real issue.
-    var div_id = 0;
+    var div_id = on_screen_album_ids[0];
     const RESIZING_DIV_INTERVAL = setInterval(resizeText, 1);
     function resizeText() {
 
@@ -516,13 +510,43 @@ function resizeAllText() {
         fitText(div, div.getElementsByTagName("h2")[0]);
         fitText(div, div.getElementsByTagName("h3")[0]);
 
-        //Clear the RESIZING_DIV_INTERVAL once all elements have been resized
-        if (div_id < num_of_albums - 1)
+        if (div_id < on_screen_album_ids[num_of_albums - 1])
             div_id = div_id + 1;
         else    
             clearInterval(RESIZING_DIV_INTERVAL);
 
     }
+
+}
+
+//Function for checking if an element is currently visible on screen
+function isElementInViewport(element) {
+
+    var rect = element.getBoundingClientRect();
+
+    if (rect.top >= 0 && rect.left >= 0)
+        if (rect.bottom <= (window.innerHeight || document.documentElement.clientHeight))
+            if (rect.right <= (window.innerWidth || document.documentElement.clientWidth))
+                return true;
+    return false;
+
+}
+
+function getOnScreenAlbumIDs() {
+
+    var onscreen_albums = [];
+    
+    const top_of_scroll = main_square.scrollTop;
+    const bottom_of_scroll = main_square.scrollTop + pixelsToNumber(getComputedStyle(main_square).height);
+
+    const second_album_div = document.getElementById("album_div_1");
+    const height_per_album = pixelsToNumber(getComputedStyle(second_album_div).height) + pixelsToNumber(getComputedStyle(second_album_div).marginTop);
+
+    for (var i = Math.floor(top_of_scroll / height_per_album); i < Math.ceil(bottom_of_scroll / height_per_album); i++)
+        if (!(document.getElementById("album_div_" + i) === null))
+            onscreen_albums.push(i);
+
+    return onscreen_albums
 
 }
 

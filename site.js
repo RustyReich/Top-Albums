@@ -221,13 +221,14 @@ function printResults() {
             div.style.marginTop = "1vmin";
 
         //Append album images to the div
-        img = new Image();
+        const img = new Image();
         img.src = ALBUM_LIST[album_id].album.images[0].url;
         div.appendChild(img);
 
         //Append album name to div
         var name = document.createElement("h1");
         name.textContent = ALBUM_LIST[album_id].album.name;
+        //name.style.left = pixelsToVmin(img.offsetWidth) + 1 + "vmin"
         div.appendChild(name);
 
         //Append album band to div
@@ -437,8 +438,33 @@ const DEFAULT_H1_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementBy
 const DEFAULT_H2_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h2")[0]).fontSize);
 const DEFAULT_H3_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h3")[0]).fontSize);
 
+//Function for reposition text so that it is exactly 1vmin to the right of the album art
+    //This is because not all albums art have a standard size for some reason
+function positionTextBasedOnAlbumWidth(img_element, text_element) {
+
+    //Get the image left and width 
+    img_left = pixelsToVmin(getComputedStyle(img_element).left)
+    img_width = pixelsToVmin(img_element.offsetWidth);
+
+    //Reposition the text
+    text_element.style.left = img_left + img_width + 1 + "vmin";
+
+}
+
 //Function for fitting an elements text into the boundaries of its parents div
 function fitText(div, text_element) {
+
+    //Get the img_element and check if its been loaded
+    const img_element = div.getElementsByTagName("img")[0];
+    const img_loaded = img_element.complete && img_element.naturalHeight !== 0;
+
+    //Position the text if the image has been loaded
+    if (img_loaded)
+        positionTextBasedOnAlbumWidth(img_element, text_element)
+    else    //If it hasn't been loaded, add an event listener to position text once image is loaded
+        img_element.addEventListener('load', function() { 
+            positionTextBasedOnAlbumWidth(img_element, text_element);
+        }, false);
 
     //First, set its fontSize to the default
         //This is so fonts can resize upward if they were made smaller but then then the window was

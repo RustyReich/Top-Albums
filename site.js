@@ -189,13 +189,17 @@ function printResults() {
     //Set album_images div to be displayed
     document.getElementById("album_images").display = "block"
 
-    //Set up an interval to resize all text in album_images div when the window is resized
+    //Set up an interval to resize all text on screen when the window is resized
     var WINDOW_RESIZED_INTERVAL;
     window.onresize = function() {
+        //Wait until user has not resized window for 100ms
+            //This is so we can make the assumption that the user has finished
+            //resizing the window
         clearTimeout(WINDOW_RESIZED_INTERVAL);
         WINDOW_RESIZED_INTERVAL = setTimeout(function() { resizeOnScreenText(); }, 100);
     };
     
+    //Also resize all text on screen when the user scrolls
     main_square.onscroll = function() { resizeOnScreenText(); }
 
     //Load all albums into the album_images div
@@ -216,7 +220,7 @@ function printResults() {
         div.style.color = "white";
         div.style.borderRadius = "1vmin"
         
-        //Ensure the first albums does not have the same top-margin as the rest of the albums
+        //Ensure the first album does not have the same top-margin as the rest of the albums
         if (album_id != 0)
             div.style.marginTop = "1vmin";
 
@@ -228,7 +232,6 @@ function printResults() {
         //Append album name to div
         var name = document.createElement("h1");
         name.textContent = ALBUM_LIST[album_id].album.name;
-        //name.style.left = pixelsToVmin(img.offsetWidth) + 1 + "vmin"
         div.appendChild(name);
 
         //Append album band to div
@@ -305,7 +308,7 @@ function requestRemaining(callback) {
 
 }
 
-//Funcion that actually sends the requests for tracks
+//Function that actually sends the requests for tracks
     //amount is the number of tracks to request
     //offset is the index of the first track
     //callback is the function to run after the current request has received a response
@@ -391,7 +394,7 @@ var LOADING_BAR_INTERVAL;
 var TICKS_SPENT_LOADING = 0
 const LOADING_BAR_RADIUS = pixelsToVmin(getComputedStyle(loading_bar_moving_circle).bottom);
 
-//Function that animated the loading circle
+//Function that animates the loading circle
 function updateLoadingBar() {
 
     const TICKS_PER_ROTATION = 240;
@@ -439,7 +442,7 @@ const DEFAULT_H1_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementBy
 const DEFAULT_H2_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h2")[0]).fontSize);
 const DEFAULT_H3_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h3")[0]).fontSize);
 
-//Function for reposition text so that it is exactly 1vmin to the right of the album art
+//Function for repositioning text so that it is exactly 1vmin to the right of the album art
     //This is because not all albums art have a standard size for some reason
 function positionTextBasedOnAlbumWidth(img_element, text_element) {
 
@@ -482,10 +485,10 @@ function fitText(div, text_element) {
     var num_of_chars = text_element.textContent.length;
     var max_width_in_pixels = div.clientWidth - pixelsToNumber(getComputedStyle(text_element).left);
     var max_character_width_in_pixels = max_width_in_pixels / num_of_chars;
-    //We multiply by 0.75 at the end because this is a conservative estimate to ensure that text
+    //We multiply by 0.74 at the end because this is a conservative estimate to ensure that text
     //never goes outside of the div
         //A side effect of this is that some text might end up being smaller than it needs to be
-    var max_font_size = 2 * max_character_width_in_pixels * 0.75;
+    var max_font_size = 2 * max_character_width_in_pixels * 0.74;
 
     //If it's current fontSize is greater than max_font_size, set it to max_font_size
     if (pixelsToNumber(getComputedStyle(text_element).fontSize) > max_font_size)
@@ -493,11 +496,14 @@ function fitText(div, text_element) {
 
 }
 
+//Function for resizing all of the album div text on screen
 function resizeOnScreenText() {
 
+    //Get the id's of albums that are currently visible on screen
     const on_screen_album_ids = getOnScreenAlbumIDs();
     const num_of_albums = Object.keys(on_screen_album_ids).length;
 
+    //Resize on album's text at a time, every 1ms
     var div_id = on_screen_album_ids[0];
     const RESIZING_DIV_INTERVAL = setInterval(resizeText, 1);
     function resizeText() {
@@ -510,6 +516,7 @@ function resizeOnScreenText() {
         fitText(div, div.getElementsByTagName("h2")[0]);
         fitText(div, div.getElementsByTagName("h3")[0]);
 
+        //Stop resizing once all on-screen albums are finished
         if (div_id < on_screen_album_ids[num_of_albums - 1])
             div_id = div_id + 1;
         else    
@@ -519,34 +526,31 @@ function resizeOnScreenText() {
 
 }
 
-//Function for checking if an element is currently visible on screen
-function isElementInViewport(element) {
-
-    var rect = element.getBoundingClientRect();
-
-    if (rect.top >= 0 && rect.left >= 0)
-        if (rect.bottom <= (window.innerHeight || document.documentElement.clientHeight))
-            if (rect.right <= (window.innerWidth || document.documentElement.clientWidth))
-                return true;
-    return false;
-
-}
-
+//Function for getting the id's of all albums that are currently
+//visible on screen
 function getOnScreenAlbumIDs() {
 
     var onscreen_albums = [];
     
+    const main_square = document.getElementById("main_square");
+
+    //Get the coordinates for the top of the current scrolling position
+    //and the bottom of the current scrolling position
     const top_of_scroll = main_square.scrollTop;
     const bottom_of_scroll = main_square.scrollTop + pixelsToNumber(getComputedStyle(main_square).height);
 
+    //We use the second album to calculate the height_per_album since the first album won't have the
+    //the top-margin that the other albums have
     const second_album_div = document.getElementById("album_div_1");
     const height_per_album = pixelsToNumber(getComputedStyle(second_album_div).height) + pixelsToNumber(getComputedStyle(second_album_div).marginTop);
 
+    //Based on top_of_scroll, bottom_of_scroll, and height_per_album, calculate which albums should
+    //be visible on screen
     for (var i = Math.floor(top_of_scroll / height_per_album); i < Math.ceil(bottom_of_scroll / height_per_album); i++)
         if (!(document.getElementById("album_div_" + i) === null))
             onscreen_albums.push(i);
 
-    return onscreen_albums
+    return onscreen_albums;
 
 }
 

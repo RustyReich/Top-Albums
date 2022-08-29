@@ -22,6 +22,12 @@ const ACCESS_TOKEN = CURRENT_URL.substring(CURRENT_URL.indexOf("=") + 1, CURRENT
 
 function main() {
 
+    //Add the "Hosted on GitHub" button
+    const github_button = document.getElementById("github_button");
+    github_button.addEventListener('click', () => {
+        window.open("https://github.com/RustyReich/Top-Spotify-Albums", '_blank');
+    });
+
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
 
@@ -43,12 +49,6 @@ function main() {
         //user-library-read is the only scope that needs to be requested in order to get the users 
         //saved tracks
         var scope = 'user-library-read';
-
-        //Add the "Hosted on GitHub" button
-        const github_button = document.getElementById("github_button");
-        github_button.addEventListener('click', () => {
-            window.location = "https://github.com/RustyReich/Top-Spotify-Albums";
-        });
 
         //Redirect to "Authorization" spotify link upon clicking login_button
         const login_button = document.getElementById("login_button");

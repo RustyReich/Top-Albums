@@ -188,16 +188,18 @@ function printResults() {
 
     //Set up an interval to resize all text on screen when the window is resized
     var WINDOW_RESIZED_INTERVAL;
-    window.onresize = function() {
+    window.addEventListener('resize', function() {
+
         //Wait until user has not resized window for 100ms
             //This is so we can make the assumption that the user has finished
             //resizing the window
         clearTimeout(WINDOW_RESIZED_INTERVAL);
         WINDOW_RESIZED_INTERVAL = setTimeout(function() { resizeOnScreenText(); }, 100);
-    };
+        
+    });
     
     //Also resize all text on screen when the user scrolls
-    main_square.onscroll = function() { resizeOnScreenText(); }
+    main_square.addEventListener('scroll', resizeOnScreenText, false);
 
     //Load all albums into the album_images div
     var album_id = 0;
@@ -243,7 +245,7 @@ function printResults() {
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
-        div.addEventListener('touchstart', () => {
+        addListenerMulti(div, 'click touchstart', function() {
             
             const id = Number(div.getAttribute('id').substring(("album_div_").length));
 
@@ -588,6 +590,15 @@ function getOnScreenAlbumIDs() {
             onscreen_albums.push(i);
 
     return onscreen_albums;
+
+}
+
+function addListenerMulti(element, eventNames, listener) {
+
+    const events = eventNames.split(' ');
+
+    for(var i = 0; i < events.length; i++)
+        element.addEventListener(events[i], listener, false);
 
 }
 

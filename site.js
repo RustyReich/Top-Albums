@@ -5,12 +5,15 @@ class album_entry {
 
         this.album = album;
         this.count = 1;
+        this.savedSongs = [];
 
     }
 
     incrementCount() { this.count = this.count + 1; }
 
     getCount() { return this.count; }
+
+    addSavedSong(song) { this.savedSongs.push(song); }
 
 }
 
@@ -174,20 +177,14 @@ function printResults() {
     main_square.style.width = "98%";
     main_square.style.height = "90%";
     main_square.style.position = "fixed";
-    main_square.style.left = "1%";
+    main_square.style.left = "1vmin";
     main_square.style.top = "9vmin";
 
     //Set new formatting attributes for main_square
     main_square.style.color = "white";
-    main_square.style.textAlign = "left";
-    main_square.style.fontSize = "2vmin";
     main_square.style.fontFamily = "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif";
-    main_square.style.whiteSpace = "pre-line"
     main_square.style.overflowY = "scroll"
     main_square.style.overflowX = "hidden"
-
-    //Set album_images div to be displayed
-    document.getElementById("album_images").display = "block"
 
     //Set up an interval to resize all text on screen when the window is resized
     var WINDOW_RESIZED_INTERVAL;
@@ -216,13 +213,15 @@ function printResults() {
         //Set some style attributes for the div
         div.style.width = "98.5%";
         div.style.height = "20vmin";
-        div.style.background = "#282828";
+        div.style.backgroundColor = "#282828";
         div.style.color = "white";
         div.style.borderRadius = "1vmin"
-        
-        //Ensure the first album does not have the same top-margin as the rest of the albums
-        if (album_id != 0)
-            div.style.marginTop = "1vmin";
+        div.style.cursor = "pointer";
+        div.style.position = "relative";
+        div.style.display = "block";
+        div.style.top = "0";
+        div.style.left = "0";
+        div.style.marginTop = "1vmin";
 
         //Append album images to the div
         const img = new Image();
@@ -243,6 +242,39 @@ function printResults() {
         var count = document.createElement("h3");
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
+
+        div.addEventListener('click', () => {
+            
+            const id = Number(div.getAttribute('id').substring(("album_div_").length));
+
+            if (getComputedStyle(div).backgroundColor == "rgb(40, 40, 40)") {
+
+                div.style.backgroundColor = "#3d3939";
+
+                const songs = document.createElement("body");
+                div.appendChild(songs);
+
+                for (var i = 0; i < ALBUM_LIST[id].getCount(); i++) {
+
+                    const song = document.createElement("h4");
+                    song.textContent = ALBUM_LIST[id].savedSongs[i].name;
+                    songs.appendChild(song);
+
+                }
+
+                div.style.height = pixelsToVmin(getComputedStyle(div).height) + pixelsToVmin(getComputedStyle(songs).height) + "vmin";
+            
+            }
+            else {
+
+                div.getElementsByTagName("body")[0].remove();
+
+                div.style.height = "20vmin"
+                div.style.backgroundColor = "#282828";
+
+            }
+
+        });
 
         //Append div to album_images div
         document.getElementById("album_images").appendChild(div);
@@ -360,12 +392,17 @@ function receieveResponse(callback, ...args) {
         if (album_list_id == -1) {
 
             //Push the album onto the array
-            const curr_album_entry = new album_entry(current_tracks_album);
+            var curr_album_entry = new album_entry(current_tracks_album);
+            curr_album_entry.savedSongs.push(response.items[i].track);
             ALBUM_LIST.push(curr_album_entry);
 
         }
-        else    //If it is in the array already, then increment the count for the album
+        else {
+
             ALBUM_LIST[album_list_id].incrementCount();
+            ALBUM_LIST[album_list_id].addSavedSong(response.items[i].track);
+
+        }
 
     }
 

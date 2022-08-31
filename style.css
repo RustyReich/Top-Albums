@@ -67,26 +67,29 @@
 
 #album_images {
 
-    position: relative;
+    position: absolute;
+    margin-top: 0;
+    margin-bottom: 0;
+    top: 0;
+    left: 1vmin;
+    
+    height: 100%;
+    width: 100%;
 
-    top: -12vmin;
-    padding-left: 1vmin;
-
-    height: auto;
+    display: block;
 
 }
 
 #album_images img {
 
-    position: relative;
+    position: absolute;
     margin: 0;
+    
     top: 1vmin;
     left: 1vmin;
 
     width: auto;
-    height: 90%;
-
-    display: block;
+    height: 18vmin;
 
 }
 
@@ -94,7 +97,8 @@
 
     position: relative;
     margin: 0;
-    bottom: 90%;
+
+    top: 1vmin;
     left: 20vmin;
     
     font-size: 4vmin;
@@ -108,7 +112,8 @@
 
     position: relative;
     margin: 0;
-    bottom: 87%;
+
+    top: 2vmin;
     left: 20vmin;
 
     font-size: 3vmin;
@@ -119,10 +124,23 @@
 
     position: relative;
     margin: 0;
-    bottom: 55%;
+
+    top:  8vmin;
     left: 20vmin;
 
     font-size: 2vmin;
+
+}
+
+#album_images body {
+
+    position: absolute;
+    margin: 0;
+
+    bottom: 0;
+    left: 1vmin;
+
+    font-size: 1vmin;
 
 }
 

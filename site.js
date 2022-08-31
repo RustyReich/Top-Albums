@@ -243,7 +243,7 @@ function printResults() {
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
-        div.onclick = function() {
+        div.addEventListener('touchstart', () => {
             
             const id = Number(div.getAttribute('id').substring(("album_div_").length));
 
@@ -274,7 +274,7 @@ function printResults() {
 
             }
 
-        };
+        });
 
         //Append div to album_images div
         document.getElementById("album_images").appendChild(div);

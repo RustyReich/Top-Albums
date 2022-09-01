@@ -288,12 +288,12 @@ function printResults() {
                 }
 
                 div.removeEventListener('mouseup', selectAlbum, false);
-            
+
             }
 
             function touchSelectAlbum() {
-
-                if (!is_scrolling)
+                
+                if (!is_scrolling())
                     selectAlbum();
 
                 div.removeEventListener('touchend', touchSelectAlbum, false);

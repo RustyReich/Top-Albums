@@ -244,7 +244,7 @@ function printResults() {
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
-        addListenerMulti(div, 'mousedown touchstart', function() {
+        function selectionHandler() {
 
             function selectAlbum() {
 
@@ -302,7 +302,12 @@ function printResults() {
 
             main_square.addEventListener('scroll', removeListeners, false);
 
-        });
+        }
+
+        if (isTouchDevice())
+            div.addEventListener('touchstart', selectionHandler, false);
+        else
+            div.addEventListener('mousedown', selectionHandler, false);
 
         //Append div to album_images div
         document.getElementById("album_images").appendChild(div);
@@ -616,15 +621,6 @@ function getOnScreenAlbumIDs() {
             onscreen_albums.push(i);
 
     return onscreen_albums;
-
-}
-
-function addListenerMulti(element, eventNames, listener) {
-
-    const events = eventNames.split(' ');
-
-    for(var i = 0; i < events.length; i++)
-        element.addEventListener(events[i], listener, false);
 
 }
 

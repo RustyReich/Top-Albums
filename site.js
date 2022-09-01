@@ -198,17 +198,7 @@ function printResults() {
         
     });
     
-    main_square.addEventListener('scroll', function() {
-
-        resizeOnScreenText();
-
-        main_square.lastScrollTime = new Date().getTime();
-
-    }, false);
-
-    function is_scrolling() {
-        return main_square.lastScrollTime && new Date().getTime() < main_square.lastScrollTime + 100;
-    }
+    main_square.addEventListener('scroll', resizeOnScreenText, false);
 
     //Load all albums into the album_images div
     var album_id = 0;
@@ -287,16 +277,22 @@ function printResults() {
             
                 }
 
-                div.removeEventListener('mouseup', selectAlbum, false);
-                div.removeEventListener('touchend', selectAlbum, false);
+                removeListeners();
 
             }
 
-            if (!is_scrolling())
-                div.addEventListener('mouseup', selectAlbum, false);
+            function removeListeners() {
 
-            if (!is_scrolling())
-                div.addEventListener('touchend', selectAlbum, false);
+                div.removeEventListener('mouseup', selectAlbum, false);
+                div.removeEventListener('touchend', selectAlbum, false);
+                main_square.removeEventListener('scroll', removeListeners, false);
+
+            }
+
+            div.addEventListener('mouseup', selectAlbum, false);
+            div.addEventListener('touchend', selectAlbum, false);
+
+            main_square.addEventListener('scroll', removeListeners, false);
 
         });
 

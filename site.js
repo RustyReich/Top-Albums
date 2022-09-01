@@ -285,7 +285,9 @@ function printResults() {
 
                 div.removeEventListener('mouseup', selectAlbum, false);
                 div.removeEventListener('touchend', selectAlbum, false);
+
                 main_square.removeEventListener('scroll', removeListeners, false);
+                div.removeEventListener('touchmove', removeListeners, false);
 
             }
 
@@ -293,6 +295,7 @@ function printResults() {
             div.addEventListener('touchend', selectAlbum, false);
 
             main_square.addEventListener('scroll', removeListeners, false);
+            div.addEventListener('touchmove', removeListeners, false);
 
         });
 

@@ -291,11 +291,16 @@ function printResults() {
 
             }
 
-            div.addEventListener('mouseup', selectAlbum, false);
-            div.addEventListener('touchend', selectAlbum, false);
+            if (isTouchDevice()) {
+
+                div.addEventListener('touchend', selectAlbum, false);
+                div.addEventListener('touchmove', removeListeners, false);
+
+            }
+            else
+                div.addEventListener('mouseup', selectAlbum, false);
 
             main_square.addEventListener('scroll', removeListeners, false);
-            div.addEventListener('touchmove', removeListeners, false);
 
         });
 
@@ -620,6 +625,14 @@ function addListenerMulti(element, eventNames, listener) {
 
     for(var i = 0; i < events.length; i++)
         element.addEventListener(events[i], listener, false);
+
+}
+
+function isTouchDevice() {
+
+    return (('ontouchstart' in window) || 
+            (navigator.maxTouchPoints > 0) || 
+            (navigator.msMaxTouchPoints > 0));
 
 }
 

@@ -23,6 +23,15 @@ const CURRENT_URL = window.location.href;
 //Get the access token
 const ACCESS_TOKEN = CURRENT_URL.substring(CURRENT_URL.indexOf("=") + 1, CURRENT_URL.indexOf("&"));
 
+//Maximum amount of tracks that can be requested at one time
+    //This is a limitation imposed by the Spotify Web API
+const MAX_REQUESTS_AT_A_TIME = 50;
+
+//Variables used for receiving and storing tracks and albums
+var ALBUM_LIST = []
+var TOTAL_TRACKS = Infinity
+var TRACKS_RECEIVED = 0
+
 function main() {
 
     //Add the "Hosted on GitHub" button
@@ -77,8 +86,64 @@ function main() {
         //Set up an interval to update the loading bar while we load all the tracks and albums
         LOADING_BAR_INTERVAL = setInterval(updateLoadingBar, 1)
 
-        //Request all the users tracks, and call printResults after all tracks have been receieved
-        requestAllTracks(printResults)
+        sendRequest(craftUserTracksUrl(MAX_REQUESTS_AT_A_TIME, 0), function() {
+
+            function handleTracksRetrieval(response) {
+
+                //Count the number of tracks that were receieved in the response
+                const num_tracks_received = Object.keys(response.items).length;
+
+                //For every track received in the current response
+                for (var i = 0; i < num_tracks_received; i++) {
+
+                    //Check if the current tracks album is already in the ALBUM_LIST array
+                    current_tracks_album = response.items[i].track.album;
+                    album_list_id = albumInList(current_tracks_album);
+
+                    //If it is not in the array
+                    if (album_list_id == -1) {
+
+                        //Push the album onto the array
+                        var curr_album_entry = new album_entry(current_tracks_album);
+                        curr_album_entry.savedSongs.push(response.items[i].track);
+                        ALBUM_LIST.push(curr_album_entry);
+
+                    }
+                    else {
+
+                        ALBUM_LIST[album_list_id].incrementCount();
+                        ALBUM_LIST[album_list_id].addSavedSong(response.items[i].track);
+
+                    }
+
+                }
+
+                //Keep track of the number of tracks receieved so far
+                TRACKS_RECEIVED += num_tracks_received;
+
+                if (TRACKS_RECEIVED >= TOTAL_TRACKS)
+                    printResults();
+
+            }
+
+            const raw_response = this.responseText;
+            const response = JSON.parse(raw_response);
+
+            TOTAL_TRACKS = response.total;
+
+            handleTracksRetrieval(response);
+            
+            for (var i = TRACKS_RECEIVED; i < TOTAL_TRACKS; i = i + MAX_REQUESTS_AT_A_TIME)
+                sendRequest(craftUserTracksUrl(MAX_REQUESTS_AT_A_TIME, i), function() {
+
+                    const raw_response = this.responseText;
+                    const response = JSON.parse(raw_response);
+
+                    handleTracksRetrieval(response);
+
+                });
+
+        });
 
     }
 
@@ -330,132 +395,29 @@ function printResults() {
 
 }
 
-//Maximum amount of tracks that can be requested at one time
-    //This is a limitation imposed by the Spotify Web API
-const MAX_REQUESTS_AT_A_TIME = 50;
-
-//Variables used for receiving and storing tracks and albums
-var ALBUM_LIST = []
-var TOTAL_TRACKS = Infinity
-var TRACKS_RECEIVED = 0
-
-//Request all tracks saved by the user
-    //callback is the function to be called after all tracks have been received
-function requestAllTracks(callback) {
-
-    //Send request for first MAX_REQUEST_AT_A_TIME number of tracks
-        //requestRemaining is passed as the callback so that it gets called after the first set of 
-        //tracks have been received
-    sendRequest(MAX_REQUESTS_AT_A_TIME, 0, requestRemaining, callback)
-
-}
-
-//Function to be called after the first set of tracks have been receieved.
-    //The first set of tracks must be receieved separately so that we can find out how many 
-    //TOTAL_TRACKS there are.
-    //Once we know TOTAL_TRACKS, we can send requests for all other tracks
-        //callback is the function to be called after all responses have been received
-function requestRemaining(callback) {
-
-    //As long as there are still more tracks to receive, keep sending requests
-    if (TOTAL_TRACKS > TRACKS_RECEIVED) {
-
-        //Make sure to not request more tracks than are remaining
-        if (MAX_REQUESTS_AT_A_TIME > TOTAL_TRACKS - TRACKS_RECEIVED)
-            sendRequest(TOTAL_TRACKS - TRACKS_RECEIVED, TRACKS_RECEIVED, requestRemaining, callback);
-        else
-            sendRequest(MAX_REQUESTS_AT_A_TIME, TRACKS_RECEIVED, requestRemaining, callback)
-
-    }
-    else    //Once we have receieved all tracks, call the callback function
-        if (typeof callback == 'function')
-            callback();
-
-}
-
-//Function that actually sends the requests for tracks
-    //amount is the number of tracks to request
-    //offset is the index of the first track
-    //callback is the function to run after the current request has received a response
-    //args are the arguments to that callback function
-function sendRequest(amount, offset, callback, ...args) {
-
-    //Craft request url
-    var request_url = "https://api.spotify.com/v1/me/tracks?";
-    request_url += "&limit=" + amount;
-    request_url += "&offset=" + offset;
+function sendRequest(request_url, callback, ...args) {
 
     const xhr = new XMLHttpRequest();
 
-    //receieveResponse gets called once the request has receieved a response
-    xhr.callback = receieveResponse;
-    //We pass callback and its arguments to receieveResponse 
-    xhr.arguments = Array.prototype.slice.call(arguments, 2)
+    xhr.callback = callback;
+    xhr.arguments = Array.prototype.slice.call(arguments, 2);
+
     xhr.onload = xhrSuccess;
     xhr.onerror = xhrError;
 
-    //Make sure to include ACCESS_TOKEN in headers
     xhr.open("GET", request_url, true);
     xhr.setRequestHeader("Authorization", "Bearer " + ACCESS_TOKEN);
     xhr.send(null)
 
 }
 
-//Function that gets called once a response for a request has been receieved
-function receieveResponse(callback, ...args) {
+function craftUserTracksUrl(amount, offset) {
 
-    //Convert JSON response into object
-    const raw_response = this.responseText;
-    const response = JSON.parse(raw_response);
+    var request_url = "https://api.spotify.com/v1/me/tracks?";
+    request_url += "&limit=" + amount;
+    request_url += "&offset=" + offset;
 
-    //Save total number of tracks
-    TOTAL_TRACKS = response.total;
-
-    //Count the number of tracks that were receieved in the response
-    const num_tracks_received = Object.keys(response.items).length;
-
-    //For every track received in the current response
-    for (var i = 0; i < num_tracks_received; i++) {
-
-        //Check if the current tracks album is already in the ALBUM_LIST array
-        current_tracks_album = response.items[i].track.album;
-        album_list_id = albumInList(current_tracks_album);
-
-        //If it is not in the array
-        if (album_list_id == -1) {
-
-            //Push the album onto the array
-            var curr_album_entry = new album_entry(current_tracks_album);
-            curr_album_entry.savedSongs.push(response.items[i].track);
-            ALBUM_LIST.push(curr_album_entry);
-
-        }
-        else {
-
-            ALBUM_LIST[album_list_id].incrementCount();
-            ALBUM_LIST[album_list_id].addSavedSong(response.items[i].track);
-
-        }
-
-    }
-
-    //Keep track of the number of tracks receieved so far
-    TRACKS_RECEIVED += num_tracks_received;
-
-    //Call the callback function if it is present
-    if (typeof callback == 'function')
-    {
-
-        //Callback should only ever be passed here with a single or no arguments. If there is a single
-        //argument, that argument should be another callback function.
-            //So here, we just check if that argument is there, and call callback() with that argument
-            //if it is there
-        if (typeof arguments[1] == 'function')
-            callback(arguments[1]);
-        else    //If it's not there, just call callback() with no argument
-            callback();
-
-    }
+    return request_url;
 
 }
 

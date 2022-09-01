@@ -288,21 +288,15 @@ function printResults() {
                 }
 
                 div.removeEventListener('mouseup', selectAlbum, false);
+                div.removeEventListener('touchend', selectAlbum, false);
 
             }
 
-            function touchSelectAlbum() {
-                
-                if (!is_scrolling())
-                    selectAlbum();
+            if (!is_scrolling())
+                div.addEventListener('mouseup', selectAlbum, false);
 
-                div.removeEventListener('touchend', touchSelectAlbum, false);
-
-            }
-
-            div.addEventListener('mouseup', selectAlbum, false);
-
-            div.addEventListener('touchend', touchSelectAlbum, false);
+            if (!is_scrolling())
+                div.addEventListener('touchend', selectAlbum, false);
 
         });
 

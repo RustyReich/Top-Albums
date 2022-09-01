@@ -198,8 +198,17 @@ function printResults() {
         
     });
     
-    //Also resize all text on screen when the user scrolls
-    main_square.addEventListener('scroll', resizeOnScreenText, false);
+    main_square.addEventListener('scroll', function() {
+
+        resizeOnScreenText();
+
+        main_square.lastScrollTime = new Date().getTime();
+
+    }, false);
+
+    function is_scrolling() {
+        return main_square.lastScrollTime && new Date().getTime() < main_square.lastScrollTime + 100;
+    }
 
     //Load all albums into the album_images div
     var album_id = 0;
@@ -245,36 +254,55 @@ function printResults() {
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
-        addListenerMulti(div, 'click touchstart', function() {
+        addListenerMulti(div, 'mousedown touchstart', function() {
+
+            function selectAlbum() {
+
+                const id = Number(div.getAttribute('id').substring(("album_div_").length));
             
-            const id = Number(div.getAttribute('id').substring(("album_div_").length));
-
-            if (getComputedStyle(div).backgroundColor == "rgb(40, 40, 40)") {
-
-                div.style.backgroundColor = "#3d3939";
-
-                const songs = document.createElement("body");
-                div.appendChild(songs);
-
-                for (var i = 0; i < ALBUM_LIST[id].getCount(); i++) {
-
-                    const song = document.createElement("h4");
-                    song.textContent = ALBUM_LIST[id].savedSongs[i].name;
-                    songs.appendChild(song);
-
+                if (getComputedStyle(div).backgroundColor == "rgb(40, 40, 40)") {
+            
+                    div.style.backgroundColor = "#3d3939";
+            
+                    const songs = document.createElement("body");
+                    div.appendChild(songs);
+            
+                    for (var i = 0; i < ALBUM_LIST[id].getCount(); i++) {
+            
+                        const song = document.createElement("h4");
+                        song.textContent = ALBUM_LIST[id].savedSongs[i].name;
+                        songs.appendChild(song);
+            
+                    }
+            
+                    div.style.height = pixelsToVmin(getComputedStyle(div).height) + pixelsToVmin(getComputedStyle(songs).height) + "vmin";
+                
+                }
+                else {
+            
+                    div.getElementsByTagName("body")[0].remove();
+            
+                    div.style.height = "20vmin"
+                    div.style.backgroundColor = "#282828";
+            
                 }
 
-                div.style.height = pixelsToVmin(getComputedStyle(div).height) + pixelsToVmin(getComputedStyle(songs).height) + "vmin";
+                div.removeEventListener('mouseup', selectAlbum, false);
             
             }
-            else {
 
-                div.getElementsByTagName("body")[0].remove();
+            function touchSelectAlbum() {
 
-                div.style.height = "20vmin"
-                div.style.backgroundColor = "#282828";
+                if (!is_scrolling)
+                    selectAlbum();
+
+                div.removeEventListener('touchend', touchSelectAlbum, false);
 
             }
+
+            div.addEventListener('mouseup', selectAlbum, false);
+
+            div.addEventListener('touchend', touchSelectAlbum, false);
 
         });
 

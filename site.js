@@ -340,8 +340,14 @@ function printResults() {
 
                         const song = document.createElement("h4");
 
-                        if (ALBUM_LIST[id].savedSongs.find(element => element.name == ALBUM_LIST[id].songs[i].name))
-                            song.textContent = "❤ ";
+                        if (ALBUM_LIST[id].savedSongs.find(element => element.name == ALBUM_LIST[id].songs[i].name)) {
+
+                            song.style.color = "#78b159"
+                            song.textContent = "💚 ";
+
+                        }
+                        else
+                            song.textContent = "🤍 ";
 
                         song.textContent += ALBUM_LIST[id].songs[i].name;
                         songs.appendChild(song);
@@ -613,7 +619,13 @@ function isTouchDevice() {
 }
 
 //Functions for handling successes and errors of sending http requests
-function xhrSuccess() { this.callback.apply(this, this.arguments); }
+function xhrSuccess() { 
+
+    if (this.status == 200)
+        this.callback.apply(this, this.arguments); 
+    else
+        document.write(this.responseText);
+}
 function xhrError() { console.error(this.statusText); }
 
 main()

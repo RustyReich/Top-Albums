@@ -5,15 +5,15 @@ class album_entry {
 
         this.album = album;
         this.count = 1;
+
         this.savedSongs = [];
+        this.songs = [];
 
     }
 
     incrementCount() { this.count = this.count + 1; }
 
     getCount() { return this.count; }
-
-    addSavedSong(song) { this.savedSongs.push(song); }
 
 }
 
@@ -88,44 +88,6 @@ function main() {
 
         sendRequest(craftUserTracksUrl(MAX_REQUESTS_AT_A_TIME, 0), function() {
 
-            function handleTracksRetrieval(response) {
-
-                //Count the number of tracks that were receieved in the response
-                const num_tracks_received = Object.keys(response.items).length;
-
-                //For every track received in the current response
-                for (var i = 0; i < num_tracks_received; i++) {
-
-                    //Check if the current tracks album is already in the ALBUM_LIST array
-                    current_tracks_album = response.items[i].track.album;
-                    album_list_id = albumInList(current_tracks_album);
-
-                    //If it is not in the array
-                    if (album_list_id == -1) {
-
-                        //Push the album onto the array
-                        var curr_album_entry = new album_entry(current_tracks_album);
-                        curr_album_entry.savedSongs.push(response.items[i].track);
-                        ALBUM_LIST.push(curr_album_entry);
-
-                    }
-                    else {
-
-                        ALBUM_LIST[album_list_id].incrementCount();
-                        ALBUM_LIST[album_list_id].addSavedSong(response.items[i].track);
-
-                    }
-
-                }
-
-                //Keep track of the number of tracks receieved so far
-                TRACKS_RECEIVED += num_tracks_received;
-
-                if (TRACKS_RECEIVED >= TOTAL_TRACKS)
-                    printResults();
-
-            }
-
             const raw_response = this.responseText;
             const response = JSON.parse(raw_response);
 
@@ -142,6 +104,58 @@ function main() {
                     handleTracksRetrieval(response);
 
                 });
+
+            function handleTracksRetrieval(response) {
+
+                //Count the number of tracks that were receieved in the response
+                const num_tracks_received = Object.keys(response.items).length;
+
+                //For every track received in the current response
+                for (var i = 0; i < num_tracks_received; i++) {
+
+                    //Check if the current tracks album is already in the ALBUM_LIST array
+                    current_tracks_album = response.items[i].track.album;
+                    album_list_id = albumInList(current_tracks_album);
+
+                    //If it is not in the array
+                    if (album_list_id == -1) {
+
+
+                        var curr_album_entry = new album_entry(current_tracks_album);
+                        curr_album_entry.savedSongs.push(response.items[i].track);
+
+                        ALBUM_LIST.push(curr_album_entry);
+
+                        var request_url = "https://api.spotify.com/v1/albums/"
+                        request_url += curr_album_entry.album.id
+                        sendRequest(request_url, function() {
+
+                            const raw_album_response = this.responseText;
+                            const album_response = JSON.parse(raw_album_response);
+
+                            const album = ALBUM_LIST.find(element => element.album.id == album_response.id);
+                            for (var j = 0; j < album_response.tracks.total; j++)
+                                album.songs.push(album_response.tracks.items[j]);   
+
+                        });
+
+                    }
+                    else {
+
+                        ALBUM_LIST[album_list_id].incrementCount();
+                        ALBUM_LIST[album_list_id].savedSongs.push(response.items[i].track);
+
+                    }
+
+                }
+
+                //Keep track of the number of tracks receieved so far
+                TRACKS_RECEIVED += num_tracks_received;
+
+                if (TRACKS_RECEIVED >= TOTAL_TRACKS)
+                    printResults();
+
+            }
 
         });
 
@@ -321,11 +335,15 @@ function printResults() {
             
                     const songs = document.createElement("body");
                     div.appendChild(songs);
-            
-                    for (var i = 0; i < ALBUM_LIST[id].getCount(); i++) {
-            
+
+                    for (var i = 0; i < Object.keys(ALBUM_LIST[id].songs).length; i++) {
+
                         const song = document.createElement("h4");
-                        song.textContent = ALBUM_LIST[id].savedSongs[i].name;
+
+                        if (ALBUM_LIST[id].savedSongs.find(element => element.name == ALBUM_LIST[id].songs[i].name))
+                            song.textContent = "❤ ";
+
+                        song.textContent += ALBUM_LIST[id].songs[i].name;
                         songs.appendChild(song);
             
                     }

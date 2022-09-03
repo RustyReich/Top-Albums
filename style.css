@@ -101,7 +101,7 @@
     top: 1vmin;
     left: 20vmin;
     
-    font-size: 4vmin;
+    font-size: 5vmin;
     text-decoration: underline;
 
     white-space: nowrap;
@@ -113,22 +113,28 @@
     position: relative;
     margin: 0;
 
-    top: 2vmin;
+    top: 1vmin;
     left: 20vmin;
 
-    font-size: 3vmin;
+    font-size: 4vmin;
 
 }
 
 #album_images h3 {
 
-    position: relative;
+    position: absolute;
     margin: 0;
 
-    top:  8vmin;
     left: 20vmin;
 
     font-size: 2vmin;
+
+}
+
+#album_images h4 {
+
+    font-size: 2vmin;
+    line-height: 0.5vmin;
 
 }
 
@@ -139,8 +145,6 @@
 
     bottom: 0;
     left: 1vmin;
-
-    font-size: 1.5vmin;
 
 }
 

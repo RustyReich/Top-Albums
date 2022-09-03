@@ -6,7 +6,9 @@ class album_entry {
         this.album = album;
         this.count = 1;
 
+        //Songs in the album the user has saved
         this.savedSongs = [];
+        //All songs that are in the album
         this.songs = [];
 
     }
@@ -86,25 +88,31 @@ function main() {
         //Set up an interval to update the loading bar while we load all the tracks and albums
         LOADING_BAR_INTERVAL = setInterval(updateLoadingBar, 1)
 
+        //Send request for first MAX_REQUESTS_AT_A_TIME tracks saved by the user
         sendRequest(craftUserTracksUrl(MAX_REQUESTS_AT_A_TIME, 0), function() {
 
+            //After we receieve the first set of tracks
             const raw_response = this.responseText;
             const response = JSON.parse(raw_response);
-
+            //Save total number of tracks saved by user
             TOTAL_TRACKS = response.total;
 
+            //Call handler for first set of tracks
             handleTracksRetrieval(response);
             
+            //Send all requests for all remaining tracks
             for (var i = TRACKS_RECEIVED; i < TOTAL_TRACKS; i = i + MAX_REQUESTS_AT_A_TIME)
                 sendRequest(craftUserTracksUrl(MAX_REQUESTS_AT_A_TIME, i), function() {
 
                     const raw_response = this.responseText;
                     const response = JSON.parse(raw_response);
 
+                    //Call the handler function for each response that we receieve
                     handleTracksRetrieval(response);
 
                 });
 
+            //The function that gets called after a response for a set of tracks has been receieved
             function handleTracksRetrieval(response) {
 
                 //Count the number of tracks that were receieved in the response
@@ -122,26 +130,18 @@ function main() {
 
 
                         var curr_album_entry = new album_entry(current_tracks_album);
+
+                        //Push current song onto list of savedSongs in album
                         curr_album_entry.savedSongs.push(response.items[i].track);
 
+                        //Then push album onto the ALBUM_LIST array
                         ALBUM_LIST.push(curr_album_entry);
-
-                        var request_url = "https://api.spotify.com/v1/albums/"
-                        request_url += curr_album_entry.album.id
-                        sendRequest(request_url, function() {
-
-                            const raw_album_response = this.responseText;
-                            const album_response = JSON.parse(raw_album_response);
-
-                            const album = ALBUM_LIST.find(element => element.album.id == album_response.id);
-                            for (var j = 0; j < album_response.tracks.total; j++)
-                                album.songs.push(album_response.tracks.items[j]);   
-
-                        });
 
                     }
                     else {
 
+                        //If album is already in list, then just incrementCount and add song to
+                        //savedSongs list
                         ALBUM_LIST[album_list_id].incrementCount();
                         ALBUM_LIST[album_list_id].savedSongs.push(response.items[i].track);
 
@@ -152,6 +152,7 @@ function main() {
                 //Keep track of the number of tracks receieved so far
                 TRACKS_RECEIVED += num_tracks_received;
 
+                //Once all tracks are receieved, printResults
                 if (TRACKS_RECEIVED >= TOTAL_TRACKS)
                     printResults();
 
@@ -232,6 +233,8 @@ function quickSortAlbumList(low, hight) {
 
 }
 
+const DEFAULT_ALBUM_DIV_HEIGHT = 20;
+
 //Print results to the page
 function printResults() {
 
@@ -277,6 +280,7 @@ function printResults() {
         
     });
     
+    //Resize text whenever the user scrolls
     main_square.addEventListener('scroll', resizeOnScreenText, false);
 
     //Load all albums into the album_images div
@@ -292,7 +296,7 @@ function printResults() {
 
         //Set some style attributes for the div
         div.style.width = "98.5%";
-        div.style.height = "20vmin";
+        div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + "vmin";
         div.style.backgroundColor = "#282828";
         div.style.color = "white";
         div.style.borderRadius = "1vmin"
@@ -323,76 +327,9 @@ function printResults() {
         count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
         div.appendChild(count);
 
-        function selectionHandler() {
-
-            function selectAlbum() {
-
-                const id = Number(div.getAttribute('id').substring(("album_div_").length));
-            
-                if (getComputedStyle(div).backgroundColor == "rgb(40, 40, 40)") {
-            
-                    div.style.backgroundColor = "#3d3939";
-            
-                    const songs = document.createElement("body");
-                    div.appendChild(songs);
-
-                    for (var i = 0; i < Object.keys(ALBUM_LIST[id].songs).length; i++) {
-
-                        const song = document.createElement("h4");
-
-                        if (ALBUM_LIST[id].savedSongs.find(element => element.name == ALBUM_LIST[id].songs[i].name)) {
-
-                            song.style.color = "#78b159"
-                            song.textContent = "💚 ";
-
-                        }
-                        else
-                            song.textContent = "🤍 ";
-
-                        song.textContent += ALBUM_LIST[id].songs[i].name;
-                        songs.appendChild(song);
-            
-                    }
-            
-                    div.style.height = pixelsToVmin(getComputedStyle(div).height) + pixelsToVmin(getComputedStyle(songs).height) + "vmin";
-                
-                }
-                else {
-            
-                    div.getElementsByTagName("body")[0].remove();
-            
-                    div.style.height = "20vmin"
-                    div.style.backgroundColor = "#282828";
-            
-                }
-
-                removeListeners();
-
-            }
-
-            function removeListeners() {
-
-                div.removeEventListener('mouseup', selectAlbum, false);
-                div.removeEventListener('touchend', selectAlbum, false);
-
-                main_square.removeEventListener('scroll', removeListeners, false);
-                div.removeEventListener('touchmove', removeListeners, false);
-
-            }
-
-            if (isTouchDevice()) {
-
-                div.addEventListener('touchend', selectAlbum, false);
-                div.addEventListener('touchmove', removeListeners, false);
-
-            }
-            else
-                div.addEventListener('mouseup', selectAlbum, false);
-
-            main_square.addEventListener('scroll', removeListeners, false);
-
-        }
-
+        //Add event listeners for tapping or clicking on the album_div
+            //Creates a touch event listene if the device is touch screen, otherwise create a mouse
+            //listener
         if (isTouchDevice())
             div.addEventListener('touchstart', selectionHandler, false);
         else
@@ -401,16 +338,154 @@ function printResults() {
         //Append div to album_images div
         document.getElementById("album_images").appendChild(div);
 
-        //Fit text for all three children into the div boundaries
+        //Fit text for all children into the div boundaries
         fitText(div, name);
         fitText(div, band);
         fitText(div, count);
+
+        //Set count.style.top so that its always next to the bottom of the album art
+        const div_height = pixelsToVmin(getComputedStyle(div).height);
+        const count_height = pixelsToVmin(getComputedStyle(count).fontSize);
+        count.style.top = div_height - count_height - 1 + "vmin";
 
         //Clear interval after we have loaded all albums
         if (album_id < num_of_albums - 1)
             album_id = album_id + 1;
         else
             clearInterval(LOADING_ALBUMS_INTERVAL);
+
+        //Function for handling when the user clicks or taps on an album
+        function selectionHandler() {
+
+            //If the device is a touchDevice, add listeners for touchend and touchmove
+            if (isTouchDevice()) {
+
+                //When the user lifts their finger, call selectAlbum
+                div.addEventListener('touchend', selectAlbum, false);
+
+                //If the user moves their finger, remove the the listeners for selecting the album
+                    //This is because of the user moves their finger, we assume they are trying to
+                    //scroll and therefore aren't trying to select the album
+                div.addEventListener('touchmove', removeListeners, false);
+
+            }
+            else //call selectAlbum when user lifts up their mouse button
+                div.addEventListener('mouseup', selectAlbum, false);
+
+            //If the user scrolls, removeListeners as we assume they are not trying to select the
+            //album
+            main_square.addEventListener('scroll', removeListeners, false);
+
+        }
+
+        //Function for when the user actually selects the album
+        function selectAlbum() {
+
+            //Get the id of the album selected
+            const id = Number(div.getAttribute('id').substring(("album_div_").length));
+        
+            //Check the current color of the div background to figure out which state it is in
+                //It can either be in the state of already showing the songs or in the state of
+                //not showing the songs
+            if (getComputedStyle(div).backgroundColor == "rgb(40, 40, 40)") {
+        
+                //If it it is not showing songs yet, then we are selecting it to show us the songs
+
+                //Change backgound colo
+                div.style.backgroundColor = "#3d3939";
+        
+                //Create element that the list of songs will be in
+                const songs = document.createElement("body");
+                div.appendChild(songs);
+
+                //Get the number of songs in the album
+                const num_of_songs = Object.keys(ALBUM_LIST[id].songs).length;
+
+                //If the number of songs is zero, that means we haven't yet requested the list of
+                //songs
+                if (num_of_songs == 0) {
+
+                    //So send a request for the songs
+                    var request_url = "https://api.spotify.com/v1/albums/"
+                    request_url += ALBUM_LIST[id].album.id
+                    sendRequest(request_url, function() {
+
+                        const raw_response = this.responseText;
+                        const response = JSON.parse(raw_response);
+
+                        //Once the songs in the album are receieved, add them to the list
+                        ALBUM_LIST[id].songs = response.tracks.items;
+
+                        //Then display the songs
+                        displaySongs();
+
+                    });
+
+                }
+                else    //If num_of_songs is not zero, then we have songs so display them
+                    displaySongs();
+
+                //Function for displaying the songs
+                function displaySongs() {
+
+                    //For every song in the album
+                    for (var i = 0; i < Object.keys(ALBUM_LIST[id].songs).length; i++) {
+
+                        //Create an element for the current song
+                        const song = document.createElement("h4");
+
+                        //If the current song is saved by the user, display it in green
+                            //We add a heart to the beginning to kind of mimic the spotify layout
+                        const album = ALBUM_LIST[id];
+                        if (album.savedSongs.find(element => element.id == album.songs[i].id)) {
+
+                            song.style.color = "#78b159"
+                            song.textContent = "💚 ";
+
+                        }
+                        else    //Otherwise, just display it in white
+                            song.textContent = "🤍 ";
+
+                        //Append songname to element textContent
+                        song.textContent += ALBUM_LIST[id].songs[i].name;
+                        songs.appendChild(song);
+            
+                    }
+
+                    //Resize song names so that they fit in div
+                    resizeSongNames(div);
+
+                }
+            
+            }
+            else {
+        
+                //If songs are already showing, we want to remove them when we click the album
+                div.getElementsByTagName("body")[0].remove();
+        
+                //Reset height and color of the div;
+                div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + "vmin";
+                div.style.backgroundColor = "#282828";
+        
+            }
+
+            //Once album has been selected, remove the listeners for selecting it
+            removeListeners();
+
+        }
+
+        //Function for removing the listeners for selecting the album
+        function removeListeners() {
+
+            //Remove the listeners for selectAlbum
+            div.removeEventListener('mouseup', selectAlbum, false);
+            div.removeEventListener('touchend', selectAlbum, false);
+
+            //Remove the listeners for removeListeners
+            main_square.removeEventListener('scroll', removeListeners, false);
+            div.removeEventListener('touchmove', removeListeners, false);
+
+        }
 
     }
 
@@ -419,22 +494,33 @@ function printResults() {
 
 }
 
+//Function for sending a request to the Spotify Web API
+    //request_url = url to send GET request for
+    //callback = function to call once reponse for request is receieved
+    //args = arguments to pass to callback function
 function sendRequest(request_url, callback, ...args) {
 
+    //create request
     const xhr = new XMLHttpRequest();
 
+    //Set callback function and arguments for callback function
     xhr.callback = callback;
     xhr.arguments = Array.prototype.slice.call(arguments, 2);
 
+    //Handle successes and errors
     xhr.onload = xhrSuccess;
     xhr.onerror = xhrError;
 
+    //Send GET request with Authorization token
     xhr.open("GET", request_url, true);
     xhr.setRequestHeader("Authorization", "Bearer " + ACCESS_TOKEN);
     xhr.send(null)
 
 }
 
+//Function for crafting the URL for requesting a set of user-saved tracks
+    //amount = amount of tracks to request
+    //offset = index of first track to request
 function craftUserTracksUrl(amount, offset) {
 
     var request_url = "https://api.spotify.com/v1/me/tracks?";
@@ -492,11 +578,16 @@ function pixelsToVmin(num_of_pixels) {
 
 }
 
-//Get the default fontsize for h1, h2, and h3 childen of the album_images div
+//Get the default fontsize for all headers of childen of the album_images div
     //fontSize will never be greater than these
-const DEFAULT_H1_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h1")[0]).fontSize);
-const DEFAULT_H2_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h2")[0]).fontSize);
-const DEFAULT_H3_FONT_SIZE = pixelsToVmin(getComputedStyle(document.getElementById("album_images").getElementsByTagName("h3")[0]).fontSize);
+const H1_ELEMENT = document.getElementById("album_images").getElementsByTagName("h1")[0];
+const H2_ELEMENT = document.getElementById("album_images").getElementsByTagName("h2")[0];
+const H3_ELEMENT = document.getElementById("album_images").getElementsByTagName("h3")[0];
+const H4_ELEMENT = document.getElementById("album_images").getElementsByTagName("h4")[0];
+const DEFAULT_H1_FONT_SIZE = pixelsToVmin(getComputedStyle(H1_ELEMENT).fontSize);
+const DEFAULT_H2_FONT_SIZE = pixelsToVmin(getComputedStyle(H2_ELEMENT).fontSize);
+const DEFAULT_H3_FONT_SIZE = pixelsToVmin(getComputedStyle(H3_ELEMENT).fontSize);
+const DEFAULT_H4_FONT_SIZE = pixelsToVmin(getComputedStyle(H4_ELEMENT).fontSize);
 
 //Function for repositioning text so that it is exactly 1vmin to the right of the album art
     //This is because not all albums art have a standard size for some reason
@@ -535,6 +626,8 @@ function fitText(div, text_element) {
         text_element.style.fontSize = DEFAULT_H2_FONT_SIZE + "vmin";
     else if (text_element.tagName == "H3")
         text_element.style.fontSize = DEFAULT_H3_FONT_SIZE + "vmin";
+    else if (text_element.tagName == "H4")
+        text_element.style.fontSize = DEFAULT_H4_FONT_SIZE + "vmin";
 
     //Use some math to estimate what the maximum_font_size for the given textContent in the given
     //div based on the text_elements current left value would be.
@@ -567,10 +660,13 @@ function resizeOnScreenText() {
         //Get the current div by its album_div_id
         const div = document.getElementById("album_div_" + div_id);
 
-        //Fit the text of the divs h1, h2, and h3 child elements
+        //Fit the text of all header child elements
         fitText(div, div.getElementsByTagName("h1")[0]);
         fitText(div, div.getElementsByTagName("h2")[0]);
         fitText(div, div.getElementsByTagName("h3")[0]);
+
+        if (Object.keys(div.getElementsByTagName("h4")).length > 0)
+            resizeSongNames(div);
 
         //Stop resizing once all on-screen albums are finished
         if (div_id < on_screen_album_ids[num_of_albums - 1])
@@ -582,10 +678,41 @@ function resizeOnScreenText() {
 
 }
 
+//Function for resizing the text of all the song names in an album  
+    //A seperate function is made because all song names should be the same size
+        //This means if one song name is too long, it will cause all song names to become smaller
+function resizeSongNames(div) {
+
+    //We want all songs to have the same text size so that it looks nice
+    const num_of_songs = Object.keys(div.getElementsByTagName("h4")).length;
+
+    //First, find the smallest text size by resizing each song name
+    var smallest_song_text_size = DEFAULT_H4_FONT_SIZE;
+    for (var i = 0; i < num_of_songs; i++) {
+
+        const song_div = div.getElementsByTagName("h4")[i];
+
+        fitText(div, song_div);
+
+        if (pixelsToVmin(getComputedStyle(song_div).fontSize) < smallest_song_text_size)
+            smallest_song_text_size = pixelsToVmin(getComputedStyle(song_div).fontSize);
+
+    }
+    //Then, set all song names to that smallest font size;
+    for (var i = 0; i < num_of_songs; i++)
+        div.getElementsByTagName("h4")[i].style.fontSize = smallest_song_text_size + "vmin";
+
+    //Increase div_height by height of the songs_div to fit all songs in it
+    const songs = div.getElementsByTagName("body")[0];
+    const songs_div_height = pixelsToVmin(getComputedStyle(songs).height);
+    div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + songs_div_height + "vmin";
+
+}
+
 //Function for getting the id's of all albums that are currently
 //visible on screen
-function getOnScreenAlbumIDs() {
-
+function getOnScreenAlbumIDs() {    //NEED TO CHANGE NOW THAT ALBUMS CAN BE DIFFERENT HEIGHT WHEN
+                                    //SELECTED
     var onscreen_albums = [];
     
     const main_square = document.getElementById("main_square");
@@ -593,16 +720,20 @@ function getOnScreenAlbumIDs() {
     //Get the coordinates for the top of the current scrolling position
     //and the bottom of the current scrolling position
     const top_of_scroll = main_square.scrollTop;
-    const bottom_of_scroll = main_square.scrollTop + pixelsToNumber(getComputedStyle(main_square).height);
+    const bottom_of_scroll = top_of_scroll + pixelsToNumber(getComputedStyle(main_square).height);
 
     //We use the second album to calculate the height_per_album since the first album won't have the
     //the top-margin that the other albums have
     const second_album_div = document.getElementById("album_div_1");
-    const height_per_album = pixelsToNumber(getComputedStyle(second_album_div).height) + pixelsToNumber(getComputedStyle(second_album_div).marginTop);
+    const second_album_height = pixelsToNumber(getComputedStyle(second_album_div).height);
+    const second_album_marginTop = pixelsToNumber(getComputedStyle(second_album_div).marginTop);
+    const height_per_album = second_album_height + second_album_marginTop;
 
     //Based on top_of_scroll, bottom_of_scroll, and height_per_album, calculate which albums should
     //be visible on screen
-    for (var i = Math.floor(top_of_scroll / height_per_album); i < Math.ceil(bottom_of_scroll / height_per_album); i++)
+    const first_album_index = Math.floor(top_of_scroll / height_per_album);
+    const last_album_index = Math.ceil(bottom_of_scroll / height_per_album);
+    for (var i = first_album_index; i < last_album_index; i++)
         if (!(document.getElementById("album_div_" + i) === null))
             onscreen_albums.push(i);
 
@@ -610,6 +741,7 @@ function getOnScreenAlbumIDs() {
 
 }
 
+//Function for checking if the device is a touch device
 function isTouchDevice() {
 
     return (('ontouchstart' in window) || 
@@ -623,7 +755,7 @@ function xhrSuccess() {
 
     if (this.status == 200)
         this.callback.apply(this, this.arguments); 
-    else
+    else    //Display responseText if status is not 200
         document.write(this.responseText);
 }
 function xhrError() { console.error(this.statusText); }

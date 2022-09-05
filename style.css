@@ -125,6 +125,7 @@
     position: absolute;
     margin: 0;
 
+    top: 16vmin;
     left: 20vmin;
 
     font-size: 2vmin;

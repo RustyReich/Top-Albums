@@ -329,7 +329,7 @@ function printResults() {
         div.appendChild(count);
 
         //Add event listeners for tapping or clicking on the album_div
-            //Creates a touch event listene if the device is touch screen, otherwise create a mouse
+            //Creates a touch event listener if the device is touch screen, otherwise create a mouse
             //listener
         if (isTouchDevice())
             div.addEventListener('touchstart', selectionHandler, false);
@@ -343,11 +343,6 @@ function printResults() {
         fitText(div, name);
         fitText(div, band);
         fitText(div, count);
-
-        //Set count.style.top so that its always next to the bottom of the album art
-        const div_height = pixelsToVmin(getComputedStyle(div).height);
-        const count_height = pixelsToVmin(getComputedStyle(count).fontSize);
-        count.style.top = div_height - count_height - 1 + "vmin";
 
         //Clear interval after we have loaded all albums
         if (album_id < num_of_albums - 1)
@@ -364,7 +359,7 @@ function printResults() {
                 //When the user lifts their finger, call selectAlbum
                 div.addEventListener('touchend', selectAlbum, false);
 
-                //If the user moves their finger, remove the the listeners for selecting the album
+                //If the user moves their finger, remove the listeners for selecting the album
                     //This is because of the user moves their finger, we assume they are trying to
                     //scroll and therefore aren't trying to select the album
                 div.addEventListener('touchmove', removeListeners, false);
@@ -392,7 +387,7 @@ function printResults() {
         
                 //If it it is not showing songs yet, then we are selecting it to show us the songs
 
-                //Change backgound colo
+                //Change backgound color
                 div.style.backgroundColor = "#3d3939";
         
                 //Create element that the list of songs will be in
@@ -456,6 +451,8 @@ function printResults() {
                     //Resize song names so that they fit in div
                     resizeSongNames(div);
 
+                    //Keep track of the tallest div for the purpose of optimizing song-name
+                    //resizing
                     if(div.clientHeight > TALLEST_DIV_HEIGHT)
                         TALLEST_DIV_HEIGHT = div.clientHeight;
 
@@ -470,6 +467,13 @@ function printResults() {
                 //Reset height and color of the div;
                 div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + "vmin";
                 div.style.backgroundColor = "#282828";
+
+                //Resize all the text on the screen when the user selects to hide the songs in an
+                //album
+                    //This is because decreasing the height of the div may move some albums back on
+                    //to the screen that were not resized properly before because they were not
+                    //previously visible on screen
+                resizeOnScreenText();
         
             }
 
@@ -582,6 +586,7 @@ function pixelsToVmin(num_of_pixels) {
 
 }
 
+//function for converting a measurement in vmin to a measurement in pixels
 function vminToPixels(num_of_vmin) {
 
     return (num_of_vmin * Math.min(window.innerWidth, window.innerHeight) / 100);
@@ -646,7 +651,7 @@ function fitText(div, text_element) {
     var max_character_width_in_pixels = max_width_in_pixels / num_of_chars;
     //We multiply by 0.74 at the end because this is a conservative estimate to ensure that text
     //never goes outside of the div
-        //A side effect of this is that some text might end up being smaller than it needs to be
+        //A sideeffect of this is that some text might end up being smaller than it needs to be
     var max_font_size = 2 * max_character_width_in_pixels * 0.74;
 
     //If it's current fontSize is greater than max_font_size, set it to max_font_size
@@ -676,6 +681,8 @@ function resizeOnScreenText() {
         fitText(div, div.getElementsByTagName("h2")[0]);
         fitText(div, div.getElementsByTagName("h3")[0]);
 
+        //Resize song names if the any h4 tags are present
+            //An h4 tag being present means that the song names are currently being displayed
         if (Object.keys(div.getElementsByTagName("h4")).length > 0)
             resizeSongNames(div);
 
@@ -695,6 +702,7 @@ function resizeOnScreenText() {
 function resizeSongNames(div) {
 
     //We want all songs to have the same text size so that it looks nice
+
     const num_of_songs = Object.keys(div.getElementsByTagName("h4")).length;
 
     //First, find the smallest text size by resizing each song name
@@ -705,6 +713,7 @@ function resizeSongNames(div) {
 
         fitText(div, song_div);
 
+        //Keep track of the smallest new text size
         if (pixelsToVmin(getComputedStyle(song_div).fontSize) < smallest_song_text_size)
             smallest_song_text_size = pixelsToVmin(getComputedStyle(song_div).fontSize);
 
@@ -720,6 +729,7 @@ function resizeSongNames(div) {
 
 }
 
+//Keep track of the tallest div on the site
 var TALLEST_DIV_HEIGHT = vminToPixels(DEFAULT_ALBUM_DIV_HEIGHT);
 
 function getOnScreenAlbumIDs() {
@@ -730,18 +740,38 @@ function getOnScreenAlbumIDs() {
 
     const num_of_albums = Object.keys(ALBUM_LIST).length;
 
+    //The y-value of the top of the current scroll position
     const top_of_scroll = main_square.scrollTop;
 
-    const min_first_album_index = Math.floor(top_of_scroll / TALLEST_DIV_HEIGHT);
+    //The height_per_album is the height of an album plus the top margin of an album
+    const height_per_album = vminToPixels(TALLEST_DIV_HEIGHT) + vminToPixels(DEFAULT_ALBUM_MARGIN_TOP);
 
+    //The reason we keep track of the TALLEST_DIV_HEIGHT is so that we can calculate what the
+    //minimum possible index of the first div currently on screen would be.
+        //This is done by assuming that every div is as tall as the TALLEST_DIV_HEIGHT and
+        //determining what the first album visible on screen would be if that were the case
+            //In this hypothetical scenario, the min_first_album_index would just be 
+            //top_of_scroll / height_per_album
+    const min_first_album_index = Math.floor(top_of_scroll / height_per_album);
+
+    //The reason we calculate min_first_album_index is so that when we run through some loops to
+    //determine which albums are currently visible on screen, we don't iterate though any albums
+    //that are literally impossible to be visible on screen based on the current scrollTop
+        //This opitimizes the process by lowering the number of iterations that take place in the 
+        //first loop below
     var index = min_first_album_index;
 
+    //Increase index counter for every album that is not visible
+        //This process is to find the first album index that is currently visible on screen
     while (!isVisible(getAlbumDiv(index)) && index < num_of_albums - 1)
         index++;
 
+    //Once you find the first album that is currently visible, push it's index to the list
     onscreen_albums.push(index);
     index++;
 
+    //From that first visible album, go down 1-by-1 and push each index onto the list that is also
+    //visible
     while (isVisible(getAlbumDiv(index)) && index < num_of_albums) {
 
         onscreen_albums.push(index);
@@ -749,8 +779,11 @@ function getOnScreenAlbumIDs() {
 
     }
 
+    //Once we reach another album that is not currently visible, we have found all of the albums
+    //that are currently visible, so we can return the list
     return onscreen_albums;
 
+    //Function for checking if the album_div is currently visible inside of the main_square element
     function isVisible(element) {
 
         if (element === null)
@@ -759,13 +792,13 @@ function getOnScreenAlbumIDs() {
         const main_square = document.getElementById("main_square");
 
         const sTop = main_square.scrollTop;
-        const sBottom = sTop + main_square.clientHeight;
+        const sBot = sTop + main_square.clientHeight;
 
         const eTop = element.offsetTop;
-        const eBottom = eTop + element.clientHeight;
+        const eBot = eTop + element.clientHeight;
 
-        const totally_in_view = eTop >= sTop && eBottom <= sBottom;
-        const partially_in_view = (eTop < sTop && eBottom > sTop) || (eBottom > sBottom && eTop < sBottom);
+        const totally_in_view = eTop >= sTop && eBot <= sBot;
+        const partially_in_view = (eTop < sTop && eBot > sTop) || (eBot > sBot && eTop < sBot);
 
         return (totally_in_view || partially_in_view);
     
@@ -782,6 +815,7 @@ function isTouchDevice() {
 
 }
 
+//Function that returns the actual document element of the given album_div_id
 function getAlbumDiv(id) {
 
     return document.getElementById("album_div_" + id);

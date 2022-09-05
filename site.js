@@ -234,6 +234,7 @@ function quickSortAlbumList(low, hight) {
 }
 
 const DEFAULT_ALBUM_DIV_HEIGHT = 20;
+const DEFAULT_ALBUM_MARGIN_TOP = 1;
 
 //Print results to the page
 function printResults() {
@@ -305,7 +306,7 @@ function printResults() {
         div.style.display = "block";
         div.style.top = "0";
         div.style.left = "0";
-        div.style.marginTop = "1vmin";
+        div.style.marginTop = DEFAULT_ALBUM_MARGIN_TOP + "vmin";
 
         //Append album images to the div
         const img = new Image();
@@ -455,6 +456,9 @@ function printResults() {
                     //Resize song names so that they fit in div
                     resizeSongNames(div);
 
+                    if(div.clientHeight > TALLEST_DIV_HEIGHT)
+                        TALLEST_DIV_HEIGHT = div.clientHeight;
+
                 }
             
             }
@@ -578,6 +582,12 @@ function pixelsToVmin(num_of_pixels) {
 
 }
 
+function vminToPixels(num_of_vmin) {
+
+    return (num_of_vmin * Math.min(window.innerWidth, window.innerHeight) / 100);
+
+}
+
 //Get the default fontsize for all headers of childen of the album_images div
     //fontSize will never be greater than these
 const H1_ELEMENT = document.getElementById("album_images").getElementsByTagName("h1")[0];
@@ -650,6 +660,7 @@ function resizeOnScreenText() {
 
     //Get the id's of albums that are currently visible on screen
     const on_screen_album_ids = getOnScreenAlbumIDs();
+
     const num_of_albums = Object.keys(on_screen_album_ids).length;
 
     //Resize on album's text at a time, every 1ms
@@ -709,35 +720,56 @@ function resizeSongNames(div) {
 
 }
 
-//Function for getting the id's of all albums that are currently
-//visible on screen
-function getOnScreenAlbumIDs() {    //NEED TO CHANGE NOW THAT ALBUMS CAN BE DIFFERENT HEIGHT WHEN
-                                    //SELECTED
+var TALLEST_DIV_HEIGHT = vminToPixels(DEFAULT_ALBUM_DIV_HEIGHT);
+
+function getOnScreenAlbumIDs() {
+    
     var onscreen_albums = [];
     
     const main_square = document.getElementById("main_square");
 
-    //Get the coordinates for the top of the current scrolling position
-    //and the bottom of the current scrolling position
+    const num_of_albums = Object.keys(ALBUM_LIST).length;
+
     const top_of_scroll = main_square.scrollTop;
-    const bottom_of_scroll = top_of_scroll + pixelsToNumber(getComputedStyle(main_square).height);
 
-    //We use the second album to calculate the height_per_album since the first album won't have the
-    //the top-margin that the other albums have
-    const second_album_div = document.getElementById("album_div_1");
-    const second_album_height = pixelsToNumber(getComputedStyle(second_album_div).height);
-    const second_album_marginTop = pixelsToNumber(getComputedStyle(second_album_div).marginTop);
-    const height_per_album = second_album_height + second_album_marginTop;
+    const min_first_album_index = Math.floor(top_of_scroll / TALLEST_DIV_HEIGHT);
 
-    //Based on top_of_scroll, bottom_of_scroll, and height_per_album, calculate which albums should
-    //be visible on screen
-    const first_album_index = Math.floor(top_of_scroll / height_per_album);
-    const last_album_index = Math.ceil(bottom_of_scroll / height_per_album);
-    for (var i = first_album_index; i < last_album_index; i++)
-        if (!(document.getElementById("album_div_" + i) === null))
-            onscreen_albums.push(i);
+    var index = min_first_album_index;
+
+    while (!isVisible(getAlbumDiv(index)) && index < num_of_albums - 1)
+        index++;
+
+    onscreen_albums.push(index);
+    index++;
+
+    while (isVisible(getAlbumDiv(index)) && index < num_of_albums) {
+
+        onscreen_albums.push(index);
+        index++;
+
+    }
 
     return onscreen_albums;
+
+    function isVisible(element) {
+
+        if (element === null)
+            return false;
+
+        const main_square = document.getElementById("main_square");
+
+        const sTop = main_square.scrollTop;
+        const sBottom = sTop + main_square.clientHeight;
+
+        const eTop = element.offsetTop;
+        const eBottom = eTop + element.clientHeight;
+
+        const totally_in_view = eTop >= sTop && eBottom <= sBottom;
+        const partially_in_view = (eTop < sTop && eBottom > sTop) || (eBottom > sBottom && eTop < sBottom);
+
+        return (totally_in_view || partially_in_view);
+    
+    }
 
 }
 
@@ -747,6 +779,12 @@ function isTouchDevice() {
     return (('ontouchstart' in window) || 
             (navigator.maxTouchPoints > 0) || 
             (navigator.msMaxTouchPoints > 0));
+
+}
+
+function getAlbumDiv(id) {
+
+    return document.getElementById("album_div_" + id);
 
 }
 

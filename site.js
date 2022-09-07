@@ -36,6 +36,9 @@ var TRACKS_RECEIVED = 0
 
 function main() {
 
+    document.getElementById("most_songs_button").style.display = "none";
+    document.getElementById("most_percentage_button").style.display = "none";
+
     //Add the "Hosted on GitHub" button
     const github_button = document.getElementById("github_button");
     github_button.addEventListener('click', () => {
@@ -45,7 +48,6 @@ function main() {
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
 
-        //Hide the loding bar and album_images div
         document.getElementById("loading_bar").style.display = "none";
         document.getElementById("album_images").style.display = "none";
 
@@ -242,6 +244,9 @@ function printResults() {
     //Hide the loading bar
     document.getElementById("loading_bar").style.display = "none"
 
+    document.getElementById("most_songs_button").style.display = "block";
+    document.getElementById("most_percentage_button").style.display = "block";
+
     //Get the number of albums
     const num_of_albums = Object.keys(ALBUM_LIST).length
     
@@ -250,7 +255,7 @@ function printResults() {
 
     //Re-display the main_square element
     const main_square = document.getElementById("main_square");
-    main_square.style.display = "block";
+    main_square.style.display = "inline-block";
 
     //But hide the text in the main_square_element as well as the login button
     document.getElementById("main_square_text").style.display = "none"
@@ -258,10 +263,11 @@ function printResults() {
 
     //Resize and re-position the main_square 
     main_square.style.width = "98%";
-    main_square.style.height = "90%";
-    main_square.style.position = "fixed";
+    main_square.style.height = "83%";
+    main_square.style.position = "absolute";
+    main_square.style.margin = "0";
     main_square.style.left = "1vmin";
-    main_square.style.top = "9vmin";
+    main_square.style.top = "15.5vmin";
 
     //Set new formatting attributes for main_square
     main_square.style.color = "white";
@@ -296,7 +302,7 @@ function printResults() {
         div.setAttribute("id", "album_div_" + album_id);    //Give it an id
 
         //Set some style attributes for the div
-        div.style.width = "98.5%";
+        div.style.width = "98%";
         div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + "vmin";
         div.style.backgroundColor = "#282828";
         div.style.color = "white";

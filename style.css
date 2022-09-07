@@ -2,7 +2,7 @@
 
     background-color: #1db954;
 
-    position: fixed;
+    position: absolute;
     left: 1%;
     top: 1vmin;
 
@@ -25,13 +25,13 @@
     position: relative;
     margin-left: -1.5vmin;
 
-    width: 10vmin;
-    height: 1.5vmin;
+    width: auto;
+    height: auto;
 
     white-space: nowrap;
     overflow: hidden;
 
-    font-size: 1vmin;
+    font-size: 2vmin;
     color: black;
     text-decoration: none;
 
@@ -58,8 +58,8 @@
     right: 0;
     margin: auto;
 
-    width: 50vmin;
-    height: 50vmin;
+    width: 60vmin;
+    height: 60vmin;
 
     border-radius: 3vmin;
 
@@ -153,7 +153,7 @@
 
     position: absolute;
     margin: 0;
-    top: 30%;
+    top: 20%;
     left: 50%;
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
@@ -162,7 +162,7 @@
     width: 50vmin;
 
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    font-size: 4vmin;
+    font-size: 5vmin;
     color: white;
     text-align: center;
 
@@ -179,8 +179,8 @@
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 
-    height: 6vmin;
-    width: 15vmin;
+    height: 10vmin;
+    width: 30vmin;
 
     white-space: nowrap;
     overflow: hidden;
@@ -192,8 +192,76 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 1.3vmin;
+    font-size: 3vmin;
     cursor: pointer;
+
+}
+
+.most_songs_button {
+
+    background-color: #282828;
+
+    position: absolute;
+    margin: 0;
+    top: 9vmin;
+    left: 1%;
+
+    height: 5vmin;
+    width: 22vmin;
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    border: 0.5vmin solid #1db954;
+    border-radius: 5vmin;
+    color: white;
+    
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.5vmin;
+    cursor: pointer;
+
+    background-color: #1db954;
+
+}
+
+.most_percentage_button {
+
+    background-color: #282828;
+
+    position: absolute;
+    margin: 0;
+    top: 9vmin;
+    left: 24vmin;
+
+    height: 5vmin;
+    width: 22vmin;
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    border: 0.5vmin solid #1db954;
+    border-radius: 5vmin;
+    color: white;
+    
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.5vmin;
+    cursor: pointer;
+
+}
+
+.most_songs_button:hover {
+
+    background-color: #1db954;
+
+}
+
+.most_percentage_button:hover {
+
+    background-color: #1db954;
 
 }
 

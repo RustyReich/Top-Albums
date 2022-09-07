@@ -263,11 +263,12 @@ function printResults() {
 
     //Resize and re-position the main_square 
     main_square.style.width = "98%";
-    main_square.style.height = "83%";
+    main_square.style.height = "auto";
     main_square.style.position = "absolute";
     main_square.style.margin = "0";
     main_square.style.left = "1vmin";
     main_square.style.top = "15.5vmin";
+    main_square.style.bottom = "1vmin";
 
     //Set new formatting attributes for main_square
     main_square.style.color = "white";
@@ -302,7 +303,7 @@ function printResults() {
         div.setAttribute("id", "album_div_" + album_id);    //Give it an id
 
         //Set some style attributes for the div
-        div.style.width = "98%";
+        div.style.width = "auto";
         div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + "vmin";
         div.style.backgroundColor = "#282828";
         div.style.color = "white";
@@ -312,7 +313,12 @@ function printResults() {
         div.style.display = "block";
         div.style.top = "0";
         div.style.left = "0";
-        div.style.marginTop = DEFAULT_ALBUM_MARGIN_TOP + "vmin";
+        div.style.marginRight = "2vmin";
+
+        if (album_id != 0)
+            div.style.marginTop = DEFAULT_ALBUM_MARGIN_TOP + "vmin";
+        else
+            div.style.marginTop = "0";
 
         //Append album images to the div
         const img = new Image();

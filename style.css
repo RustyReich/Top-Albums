@@ -180,7 +180,7 @@
     transform: translate(-50%, -50%);
 
     height: 10vmin;
-    width: 30vmin;
+    width: 31vmin;
 
     white-space: nowrap;
     overflow: hidden;
@@ -207,7 +207,7 @@
     left: 1%;
 
     height: 5vmin;
-    width: 22vmin;
+    width: 23vmin;
 
     white-space: nowrap;
     overflow: hidden;
@@ -233,10 +233,10 @@
     position: absolute;
     margin: 0;
     top: 9vmin;
-    left: 24vmin;
+    left: 26vmin;
 
     height: 5vmin;
-    width: 22vmin;
+    width: 23vmin;
 
     white-space: nowrap;
     overflow: hidden;

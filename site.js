@@ -5,6 +5,7 @@ class album_entry {
 
         this.album = album;
         this.count = 1;
+        this.percentage;
 
         //Songs in the album the user has saved
         this.savedSongs = [];
@@ -31,6 +32,7 @@ const MAX_REQUESTS_AT_A_TIME = 50;
 
 //Variables used for receiving and storing tracks and albums
 var ALBUM_LIST = []
+var ALBUM_LIST_BY_PERCENTAGE = []
 var TOTAL_TRACKS = Infinity
 var TRACKS_RECEIVED = 0
 
@@ -96,6 +98,7 @@ function main() {
             //After we receieve the first set of tracks
             const raw_response = this.responseText;
             const response = JSON.parse(raw_response);
+
             //Save total number of tracks saved by user
             TOTAL_TRACKS = response.total;
 
@@ -130,7 +133,6 @@ function main() {
                     //If it is not in the array
                     if (album_list_id == -1) {
 
-
                         var curr_album_entry = new album_entry(current_tracks_album);
 
                         //Push current song onto list of savedSongs in album
@@ -138,6 +140,8 @@ function main() {
 
                         //Then push album onto the ALBUM_LIST array
                         ALBUM_LIST.push(curr_album_entry);
+
+                        album_list_id = Object.keys(ALBUM_LIST).length - 1;
 
                     }
                     else {
@@ -149,6 +153,11 @@ function main() {
 
                     }
 
+                    const saved_count = ALBUM_LIST[album_list_id].getCount();
+                    const total_count = current_tracks_album.total_tracks;
+ 
+                    ALBUM_LIST[album_list_id].percentage = saved_count / total_count * 100;
+
                 }
 
                 //Keep track of the number of tracks receieved so far
@@ -156,7 +165,7 @@ function main() {
 
                 //Once all tracks are receieved, printResults
                 if (TRACKS_RECEIVED >= TOTAL_TRACKS)
-                    printResults();
+                    printResults("most_songs");
 
             }
 
@@ -193,14 +202,14 @@ function albumInList(currAlbum) {
 }
 
 //Sort ALBUM_LIST by number of tracks saved in album
-function quickSortAlbumList(low, hight) {
+function sortByMostSongs(low, high) {
 
-    if (low < hight) {
+    if (low < high) {
 
-        var pi = partition(low, hight);
+        var pi = partition(low, high);
 
-        quickSortAlbumList(low, pi - 1);
-        quickSortAlbumList(pi + 1, hight);
+        sortByMostSongs(low, pi - 1);
+        sortByMostSongs(pi + 1, high);
 
     }
 
@@ -235,27 +244,101 @@ function quickSortAlbumList(low, hight) {
 
 }
 
+function sortByMostPercentage(low, high) {
+
+    if (low < high) {
+
+        var pi = partition(low, high);
+
+        sortByMostPercentage(low, pi - 1);
+        sortByMostPercentage(pi + 1, high);
+
+    }
+
+    function partition(low, high) {
+
+        var pivot = ALBUM_LIST_BY_PERCENTAGE[high];
+        var i = (low - 1);
+    
+        for (var j = low; j <= high - 1; j++) {
+
+            if (ALBUM_LIST_BY_PERCENTAGE[j].percentage > pivot.percentage) {
+    
+                i++;
+                swap(i, j);
+    
+            }
+    
+        }
+    
+        swap(i + 1, high);
+        return (i + 1);
+    
+    }
+    
+    function swap(i, j) {
+    
+        var temp = ALBUM_LIST_BY_PERCENTAGE[i];
+        ALBUM_LIST_BY_PERCENTAGE[i] = ALBUM_LIST_BY_PERCENTAGE[j];
+        ALBUM_LIST_BY_PERCENTAGE[j] = temp;
+    
+    }
+
+}
+
 const DEFAULT_ALBUM_DIV_HEIGHT = 20;
 const DEFAULT_ALBUM_MARGIN_TOP = 1;
 
 //Print results to the page
-function printResults() {
+function printResults(mode) {
+
+    if (mode == "most_songs")
+        array = ALBUM_LIST;
+    else if (mode == "most_percentage")
+        array = ALBUM_LIST_BY_PERCENTAGE;
 
     //Hide the loading bar
     document.getElementById("loading_bar").style.display = "none"
 
-    document.getElementById("most_songs_button").style.display = "block";
-    document.getElementById("most_percentage_button").style.display = "block";
+    const most_songs_button = document.getElementById("most_songs_button");
+    most_songs_button.style.display = "block";
+
+    const most_percentage_button = document.getElementById("most_percentage_button");
+    most_percentage_button.style.display = "block";
 
     //Get the number of albums
-    const num_of_albums = Object.keys(ALBUM_LIST).length
-    
-    //Sort the albums
-    quickSortAlbumList(0, num_of_albums - 1)
+    const num_of_albums = Object.keys(array).length
+
+    sortByMostSongs(0, num_of_albums - 1);
+
+    if (Object.keys(ALBUM_LIST_BY_PERCENTAGE).length == 0)
+        for (var i = 0; i < Object.keys(ALBUM_LIST).length; i++)
+            if (ALBUM_LIST[i].savedSongs[0].album.total_tracks != 1)
+                ALBUM_LIST_BY_PERCENTAGE.push(ALBUM_LIST[i]);
+
+    sortByMostPercentage(0, Object.keys(ALBUM_LIST_BY_PERCENTAGE).length - 1);
+    console.log(Object.keys(ALBUM_LIST_BY_PERCENTAGE).length);
 
     //Re-display the main_square element
     const main_square = document.getElementById("main_square");
     main_square.style.display = "inline-block";
+
+    most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
+
+    function mostPercentageButtonFunction() {
+
+        if (mode == "most_songs") {
+
+            clearInterval(LOADING_ALBUMS_INTERVAL);
+            document.getElementById("album_images").innerHTML = '';
+
+            most_percentage_button.removeEventListener('click', mostPercentageButtonFunction, false);
+
+            printResults("most_percentage");
+
+        }
+
+    }
 
     //But hide the text in the main_square_element as well as the login button
     document.getElementById("main_square_text").style.display = "none"
@@ -322,22 +405,24 @@ function printResults() {
 
         //Append album images to the div
         const img = new Image();
-        img.src = ALBUM_LIST[album_id].album.images[0].url;
+        img.src = array[album_id].album.images[0].url;
         div.appendChild(img);
 
         //Append album name to div
         var name = document.createElement("h1");
-        name.textContent = ALBUM_LIST[album_id].album.name;
+        name.textContent = array[album_id].album.name;
         div.appendChild(name);
 
         //Append album band to div
         var band = document.createElement("h2");
-        band.textContent = ALBUM_LIST[album_id].album.artists[0].name;
+        band.textContent = array[album_id].album.artists[0].name;
         div.appendChild(band);
 
-        //Append saved-song count to div
         var count = document.createElement("h3");
-        count.textContent = ALBUM_LIST[album_id].getCount() + " songs saved";
+        if (mode == "most_songs")
+            count.textContent = array[album_id].getCount() + " songs saved";
+        else if (mode == "most_percentage")
+            count.textContent = Math.ceil(array[album_id].percentage) + "% of songs saved";
         div.appendChild(count);
 
         //Add event listeners for tapping or clicking on the album_div
@@ -407,7 +492,7 @@ function printResults() {
                 div.appendChild(songs);
 
                 //Get the number of songs in the album
-                const num_of_songs = Object.keys(ALBUM_LIST[id].songs).length;
+                const num_of_songs = Object.keys(array[id].songs).length;
 
                 //If the number of songs is zero, that means we haven't yet requested the list of
                 //songs
@@ -415,14 +500,14 @@ function printResults() {
 
                     //So send a request for the songs
                     var request_url = "https://api.spotify.com/v1/albums/"
-                    request_url += ALBUM_LIST[id].album.id
+                    request_url += array[id].album.id
                     sendRequest(request_url, function() {
 
                         const raw_response = this.responseText;
                         const response = JSON.parse(raw_response);
 
                         //Once the songs in the album are receieved, add them to the list
-                        ALBUM_LIST[id].songs = response.tracks.items;
+                        array[id].songs = response.tracks.items;
 
                         //Then display the songs
                         displaySongs();
@@ -437,14 +522,14 @@ function printResults() {
                 function displaySongs() {
 
                     //For every song in the album
-                    for (var i = 0; i < Object.keys(ALBUM_LIST[id].songs).length; i++) {
+                    for (var i = 0; i < Object.keys(array[id].songs).length; i++) {
 
                         //Create an element for the current song
                         const song = document.createElement("h4");
 
                         //If the current song is saved by the user, display it in green
                             //We add a heart to the beginning to kind of mimic the spotify layout
-                        const album = ALBUM_LIST[id];
+                        const album = array[id];
                         if (album.savedSongs.find(element => element.id == album.songs[i].id)) {
 
                             song.style.color = "#78b159"
@@ -455,7 +540,7 @@ function printResults() {
                             song.textContent = "🤍 ";
 
                         //Append songname to element textContent
-                        song.textContent += ALBUM_LIST[id].songs[i].name;
+                        song.textContent += array[id].songs[i].name;
                         songs.appendChild(song);
             
                     }

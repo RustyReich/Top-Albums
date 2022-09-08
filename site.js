@@ -304,6 +304,8 @@ const DEFAULT_ALBUM_MARGIN_TOP = 1;
 //Print results to the page
 function printResults(mode) {
 
+    document.getElementById("album_images").innerHTML = '';
+
     if (mode == "most_songs")
         array = ALBUM_LIST;
     else if (mode == "most_percentage")
@@ -356,8 +358,6 @@ function printResults(mode) {
             most_percentage_button.style.backgroundColor = "#1db954";
             most_songs_button.style.backgroundColor = "#282828";
 
-            document.getElementById("album_images").innerHTML = '';
-
             most_percentage_button.removeEventListener('mouseover', mostPercentageMouseOver, false);
             most_percentage_button.removeEventListener('mouseout', mostPercentageMouseOut, false);
             
@@ -377,8 +377,6 @@ function printResults(mode) {
 
             most_percentage_button.style.backgroundColor = "#282828";
             most_songs_button.style.backgroundColor = "#1db954";
-
-            document.getElementById("album_images").innerHTML = '';
 
             most_songs_button.removeEventListener('mouseover', mostSongsMouseOver, false);
             most_songs_button.removeEventListener('mouseout', mostSongsMouseOut, false);
@@ -448,11 +446,7 @@ function printResults(mode) {
         div.style.top = "0";
         div.style.left = "0";
         div.style.marginRight = "2vmin";
-
-        if (album_id != 0)
-            div.style.marginTop = DEFAULT_ALBUM_MARGIN_TOP + "vmin";
-        else
-            div.style.marginTop = "0";
+        div.style.marginTop = DEFAULT_ALBUM_MARGIN_TOP + "vmin";
 
         //Append album images to the div
         const img = new Image();

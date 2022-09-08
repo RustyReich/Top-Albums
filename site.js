@@ -163,9 +163,21 @@ function main() {
                 //Keep track of the number of tracks receieved so far
                 TRACKS_RECEIVED += num_tracks_received;
 
-                //Once all tracks are receieved, printResults
-                if (TRACKS_RECEIVED >= TOTAL_TRACKS)
+                if (TRACKS_RECEIVED >= TOTAL_TRACKS) {
+
+                    const num_of_albums = Object.keys(ALBUM_LIST).length
+
+                    sortByMostSongs(0, num_of_albums - 1);
+
+                    for (var i = 0; i < Object.keys(ALBUM_LIST).length; i++)
+                        if (ALBUM_LIST[i].savedSongs[0].album.total_tracks != 1)
+                            ALBUM_LIST_BY_PERCENTAGE.push(ALBUM_LIST[i]);
+                
+                    sortByMostPercentage(0, Object.keys(ALBUM_LIST_BY_PERCENTAGE).length - 1);
+ 
                     printResults("most_songs");
+
+                }
 
             }
 
@@ -297,44 +309,83 @@ function printResults(mode) {
     else if (mode == "most_percentage")
         array = ALBUM_LIST_BY_PERCENTAGE;
 
-    //Hide the loading bar
-    document.getElementById("loading_bar").style.display = "none"
-
     const most_songs_button = document.getElementById("most_songs_button");
     most_songs_button.style.display = "block";
 
     const most_percentage_button = document.getElementById("most_percentage_button");
     most_percentage_button.style.display = "block";
 
+    //Hide the loading bar
+    document.getElementById("loading_bar").style.display = "none"
+
     //Get the number of albums
     const num_of_albums = Object.keys(array).length
-
-    sortByMostSongs(0, num_of_albums - 1);
-
-    if (Object.keys(ALBUM_LIST_BY_PERCENTAGE).length == 0)
-        for (var i = 0; i < Object.keys(ALBUM_LIST).length; i++)
-            if (ALBUM_LIST[i].savedSongs[0].album.total_tracks != 1)
-                ALBUM_LIST_BY_PERCENTAGE.push(ALBUM_LIST[i]);
-
-    sortByMostPercentage(0, Object.keys(ALBUM_LIST_BY_PERCENTAGE).length - 1);
-    console.log(Object.keys(ALBUM_LIST_BY_PERCENTAGE).length);
 
     //Re-display the main_square element
     const main_square = document.getElementById("main_square");
     main_square.style.display = "inline-block";
 
-    most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
+    if (mode == "most_songs") {
+
+        most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
+
+        most_percentage_button.addEventListener('mouseover', mostPercentageMouseOver, false);
+        most_percentage_button.addEventListener('mouseout', mostPercentageMouseOut, false);
+
+    }
+    else if (mode == "most_percentage") {
+
+        most_songs_button.addEventListener('click', mostSongsButtonFunction, false);
+
+        most_songs_button.addEventListener('mouseover', mostSongsMouseOver, false);
+        most_songs_button.addEventListener('mouseout', mostSongsMouseOut, false);
+
+    }
+
+    function mostSongsMouseOver() { most_songs_button.style.backgroundColor = "#1db954"; }
+    function mostSongsMouseOut() { most_songs_button.style.backgroundColor = "#282828"; }
+    function mostPercentageMouseOver() { most_percentage_button.style.backgroundColor = "#1db954"; }
+    function mostPercentageMouseOut() { most_percentage_button.style.backgroundColor = "#282828"; }
 
     function mostPercentageButtonFunction() {
 
         if (mode == "most_songs") {
 
             clearInterval(LOADING_ALBUMS_INTERVAL);
+
+            most_percentage_button.style.backgroundColor = "#1db954";
+            most_songs_button.style.backgroundColor = "#282828";
+
             document.getElementById("album_images").innerHTML = '';
 
+            most_percentage_button.removeEventListener('mouseover', mostPercentageMouseOver, false);
+            most_percentage_button.removeEventListener('mouseout', mostPercentageMouseOut, false);
+            
             most_percentage_button.removeEventListener('click', mostPercentageButtonFunction, false);
 
             printResults("most_percentage");
+
+        }
+
+    }
+
+    function mostSongsButtonFunction() {
+
+        if (mode == "most_percentage") {
+
+            clearInterval(LOADING_ALBUMS_INTERVAL);
+
+            most_percentage_button.style.backgroundColor = "#282828";
+            most_songs_button.style.backgroundColor = "#1db954";
+
+            document.getElementById("album_images").innerHTML = '';
+
+            most_songs_button.removeEventListener('mouseover', mostSongsMouseOver, false);
+            most_songs_button.removeEventListener('mouseout', mostSongsMouseOut, false);
+
+            most_songs_button.removeEventListener('click', mostSongsButtonFunction, false);
+
+            printResults("most_songs");
 
         }
 

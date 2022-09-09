@@ -4,7 +4,11 @@ class album_entry {
     constructor(album) {
 
         this.album = album;
+
+        //The number of songs in the album the user has saved
         this.count = 1;
+
+        //Percentage of songs in the album the user has saved
         this.percentage;
 
         //Songs in the album the user has saved
@@ -38,6 +42,7 @@ var TRACKS_RECEIVED = 0
 
 function main() {
 
+    //Hide the sorting buttons until we load the albums
     document.getElementById("most_songs_button").style.display = "none";
     document.getElementById("most_percentage_button").style.display = "none";
 
@@ -50,6 +55,7 @@ function main() {
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
 
+        //Hide loading bar and album_images div
         document.getElementById("loading_bar").style.display = "none";
         document.getElementById("album_images").style.display = "none";
 
@@ -141,6 +147,7 @@ function main() {
                         //Then push album onto the ALBUM_LIST array
                         ALBUM_LIST.push(curr_album_entry);
 
+                        //album_list_id is now equal to the last index in the ALBUM_LIST
                         album_list_id = Object.keys(ALBUM_LIST).length - 1;
 
                     }
@@ -153,9 +160,9 @@ function main() {
 
                     }
 
+                    //Calculate percentage of songs saved from album
                     const saved_count = ALBUM_LIST[album_list_id].getCount();
                     const total_count = current_tracks_album.total_tracks;
- 
                     ALBUM_LIST[album_list_id].percentage = saved_count / total_count * 100;
 
                 }
@@ -163,18 +170,24 @@ function main() {
                 //Keep track of the number of tracks receieved so far
                 TRACKS_RECEIVED += num_tracks_received;
 
+                //Once all tracks have been receieved
                 if (TRACKS_RECEIVED >= TOTAL_TRACKS) {
 
                     const num_of_albums = Object.keys(ALBUM_LIST).length
 
+                    //Sort ALBUM_LIST by number of songs saved
                     sortByMostSongs(0, num_of_albums - 1);
 
+                    //Copy all albums with more than 1 song into ALBUM_LIST_BY_PERCENTAGE
                     for (var i = 0; i < Object.keys(ALBUM_LIST).length; i++)
                         if (ALBUM_LIST[i].savedSongs[0].album.total_tracks != 1)
                             ALBUM_LIST_BY_PERCENTAGE.push(ALBUM_LIST[i]);
                 
+                    //Sort ALBUM_LIST_BY_PERCENTAGE by albums with the highest percentage of songs
+                    //saved
                     sortByMostPercentage(0, Object.keys(ALBUM_LIST_BY_PERCENTAGE).length - 1);
  
+                    //Print the albums by most songs saved
                     printResults("most_songs");
 
                 }
@@ -256,6 +269,7 @@ function sortByMostSongs(low, high) {
 
 }
 
+//Sort ALBUM_LIST_BY_PERCENTAGE by percentage of tracks saved in album
 function sortByMostPercentage(low, high) {
 
     if (low < high) {
@@ -298,35 +312,43 @@ function sortByMostPercentage(low, high) {
 
 }
 
+//The default height and top margin of album_div's in vmin
 const DEFAULT_ALBUM_DIV_HEIGHT = 20;
 const DEFAULT_ALBUM_MARGIN_TOP = 1;
 
 //Print results to the page
+    //mode sets the array to print, ALBUM_LIST or ALBUM_LIST_BY_PERCENTAGE
 function printResults(mode) {
 
+    //Clear all contents of album_images div
     document.getElementById("album_images").innerHTML = '';
 
+    //Print the appropriate array
     if (mode == "most_songs")
         array = ALBUM_LIST;
     else if (mode == "most_percentage")
         array = ALBUM_LIST_BY_PERCENTAGE;
 
+    //Show the most_songs_button
     const most_songs_button = document.getElementById("most_songs_button");
     most_songs_button.style.display = "block";
 
+    //Show the most_percentage_button
     const most_percentage_button = document.getElementById("most_percentage_button");
     most_percentage_button.style.display = "block";
 
     //Hide the loading bar
     document.getElementById("loading_bar").style.display = "none"
 
-    //Get the number of albums
+    //Get the number of albums in array
     const num_of_albums = Object.keys(array).length
 
     //Re-display the main_square element
     const main_square = document.getElementById("main_square");
     main_square.style.display = "inline-block";
 
+    //Add event listeners for changing the color of the button not currently selected when you
+    //hover over it
     if (mode == "most_songs") {
 
         most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
@@ -343,32 +365,39 @@ function printResults(mode) {
         most_songs_button.addEventListener('mouseout', mostSongsMouseOut, false);
 
     }
-
     function mostSongsMouseOver() { most_songs_button.style.backgroundColor = "#1db954"; }
     function mostSongsMouseOut() { most_songs_button.style.backgroundColor = "#282828"; }
     function mostPercentageMouseOver() { most_percentage_button.style.backgroundColor = "#1db954"; }
     function mostPercentageMouseOut() { most_percentage_button.style.backgroundColor = "#282828"; }
 
+    //Function for pressing the most_percentage_button
     function mostPercentageButtonFunction() {
 
+        //Button only works if currently in most_songs mode
         if (mode == "most_songs") {
 
+            //Stop loading albums
             clearInterval(LOADING_ALBUMS_INTERVAL);
 
+            //Change colors of sorting buttons
             most_percentage_button.style.backgroundColor = "#1db954";
             most_songs_button.style.backgroundColor = "#282828";
 
+            //Remove hover event listeners for most_percentage_button
             most_percentage_button.removeEventListener('mouseover', mostPercentageMouseOver, false);
             most_percentage_button.removeEventListener('mouseout', mostPercentageMouseOut, false);
             
+            //Remove click event listener for most_percentage_button
             most_percentage_button.removeEventListener('click', mostPercentageButtonFunction, false);
 
+            //Print albums in most_percentage mode
             printResults("most_percentage");
 
         }
 
     }
 
+    //Function for pressing most_songs_button
     function mostSongsButtonFunction() {
 
         if (mode == "most_percentage") {
@@ -463,6 +492,9 @@ function printResults(mode) {
         band.textContent = array[album_id].album.artists[0].name;
         div.appendChild(band);
 
+        //Append count to div
+            //If in most_songs mode, count is number of songs saved from album
+            //If in most_percentage mode, count is percentage of songs saved from album
         var count = document.createElement("h3");
         if (mode == "most_songs")
             count.textContent = array[album_id].getCount() + " songs saved";
@@ -502,7 +534,7 @@ function printResults(mode) {
                 div.addEventListener('touchend', selectAlbum, false);
 
                 //If the user moves their finger, remove the listeners for selecting the album
-                    //This is because of the user moves their finger, we assume they are trying to
+                    //This is because if the user moves their finger, we assume they are trying to
                     //scroll and therefore aren't trying to select the album
                 div.addEventListener('touchmove', removeListeners, false);
 
@@ -699,7 +731,7 @@ function updateLoadingBar() {
     x = Math.cos(t)
     y = Math.sin(t)
 
-    //Set X any Y values for moving_circle
+    //Set X and Y values for moving_circle
     loading_bar_moving_circle.style.bottom = x * LOADING_BAR_RADIUS + "vmin";
     loading_bar_moving_circle.style.left = y * LOADING_BAR_RADIUS + "vmin";
 
@@ -728,7 +760,7 @@ function pixelsToVmin(num_of_pixels) {
 
 }
 
-//function for converting a measurement in vmin to a measurement in pixels
+//Function for converting a measurement in vmin to a measurement in pixels
 function vminToPixels(num_of_vmin) {
 
     return (num_of_vmin * Math.min(window.innerWidth, window.innerHeight) / 100);
@@ -808,6 +840,7 @@ function resizeOnScreenText() {
     //Get the id's of albums that are currently visible on screen
     const on_screen_album_ids = getOnScreenAlbumIDs();
 
+    //Count number of albums currently visible on screen
     const num_of_albums = Object.keys(on_screen_album_ids).length;
 
     //Resize on album's text at a time, every 1ms
@@ -823,7 +856,7 @@ function resizeOnScreenText() {
         fitText(div, div.getElementsByTagName("h2")[0]);
         fitText(div, div.getElementsByTagName("h3")[0]);
 
-        //Resize song names if the any h4 tags are present
+        //Resize song names if any h4 tags are present
             //An h4 tag being present means that the song names are currently being displayed
         if (Object.keys(div.getElementsByTagName("h4")).length > 0)
             resizeSongNames(div);
@@ -874,6 +907,7 @@ function resizeSongNames(div) {
 //Keep track of the tallest div on the site
 var TALLEST_DIV_HEIGHT = vminToPixels(DEFAULT_ALBUM_DIV_HEIGHT);
 
+//Function for getting all albums currently visible on screen
 function getOnScreenAlbumIDs() {
     
     var onscreen_albums = [];

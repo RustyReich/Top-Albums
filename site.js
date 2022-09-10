@@ -575,21 +575,69 @@ function printResults(mode) {
                 //songs
                 if (num_of_songs == 0) {
 
+                    var album_tracks_received = 0;
+                    var num_tracks_in_album = Infinity;
+
                     //So send a request for the songs
                     var request_url = "https://api.spotify.com/v1/albums/"
                     request_url += array[id].album.id
+
                     sendRequest(request_url, function() {
 
-                        const raw_response = this.responseText;
-                        const response = JSON.parse(raw_response);
+                        var raw_response = this.responseText;
+                        var response = JSON.parse(raw_response);
 
-                        //Once the songs in the album are receieved, add them to the list
-                        array[id].songs = response.tracks.items;
+                        num_tracks_in_album = response.total_tracks;
 
-                        //Then display the songs
-                        displaySongs();
+                        handleAlbumTracksRetrieval(response);
+
+                        for (var i = album_tracks_received; i < num_tracks_in_album; i += response.tracks.limit) {
+                            
+                            var new_url = request_url + "/tracks";
+                            new_url += "?offset=" + i;
+                            new_url += "&limit=" + MAX_REQUESTS_AT_A_TIME;
+
+                            sendRequest(new_url, function() {
+
+                                raw_response = this.responseText;
+                                response = JSON.parse(raw_response);
+                                console.log(raw_response);
+                                handleAlbumTracksRetrieval(response);
+
+                            });
+
+                        }
 
                     });
+
+                    function handleAlbumTracksRetrieval(response) {
+
+                        var num_tracks_received = 0;
+
+                        if (album_tracks_received == 0) {
+
+                            num_tracks_received = Object.keys(response.tracks.items).length;
+
+                            for (var i = 0; i < num_tracks_received; i++)
+                                array[id].songs.push(response.tracks.items[i]);
+
+                        }
+                        else {
+
+                            num_tracks_received = Object.keys(response.items).length;
+
+                            for (var i = 0; i < num_tracks_received; i++)
+                                array[id].songs.push(response.items[i]);
+
+
+                        }
+
+                        album_tracks_received += num_tracks_received;
+
+                        if (album_tracks_received >= num_tracks_in_album)
+                            displaySongs();
+
+                    }
 
                 }
                 else    //If num_of_songs is not zero, then we have songs so display them

@@ -578,10 +578,10 @@ function printResults(mode) {
                     var album_tracks_received = 0;
                     var num_tracks_in_album = Infinity;
 
-                    //So send a request for the songs
                     var request_url = "https://api.spotify.com/v1/albums/"
                     request_url += array[id].album.id
 
+                    //So send request for first set of tracks in the album
                     sendRequest(request_url, function() {
 
                         var raw_response = this.responseText;
@@ -591,17 +591,22 @@ function printResults(mode) {
 
                         handleAlbumTracksRetrieval(response);
 
+                        //After we've receieved the first set of tracks from the album, we send
+                        //requests for all remaining tracks in the album, MAX_REQUESTS_AT_A_TIME
+                        //at a time
                         for (var i = album_tracks_received; i < num_tracks_in_album; i += response.tracks.limit) {
                             
+                            //Build URL for current request
                             var new_url = request_url + "/tracks";
                             new_url += "?offset=" + i;
                             new_url += "&limit=" + MAX_REQUESTS_AT_A_TIME;
 
+                            //Send the current request
                             sendRequest(new_url, function() {
 
                                 raw_response = this.responseText;
                                 response = JSON.parse(raw_response);
-                                console.log(raw_response);
+
                                 handleAlbumTracksRetrieval(response);
 
                             });
@@ -610,10 +615,14 @@ function printResults(mode) {
 
                     });
 
+                    //Function for handling the retrieval of tracks in an album
                     function handleAlbumTracksRetrieval(response) {
 
                         var num_tracks_received = 0;
 
+                        //The first set of tracks have slightly different JSON structure from the
+                        //other sets, so we have a special condition here for detecting if the
+                        //current set is the first set
                         if (album_tracks_received == 0) {
 
                             num_tracks_received = Object.keys(response.tracks.items).length;
@@ -634,6 +643,7 @@ function printResults(mode) {
 
                         album_tracks_received += num_tracks_received;
 
+                        //Once we've receieved all of the tracks from the album, display the songs
                         if (album_tracks_received >= num_tracks_in_album)
                             displaySongs();
 

@@ -15,7 +15,7 @@ A website that allows you to see which albums you have the most number of songs 
 
 <a name="How_To_Use"/>
 
-## How To Use
+## How to Use
 - Click or tap the `Login with Spotify` button
 - After loading, you shoud immediately see the 5 or so albums that you have the most songs saved from
 - Scroll through the list to see every album that you have at least 1 song saved from

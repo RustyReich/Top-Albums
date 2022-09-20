@@ -313,8 +313,10 @@ function sortByMostPercentage(low, high) {
 }
 
 //The default height and top margin of album_div's in vmin
-const DEFAULT_ALBUM_DIV_HEIGHT = 20;
+const DEFAULT_ALBUM_DIV_HEIGHT = 24;
 const DEFAULT_ALBUM_MARGIN_TOP = 1;
+
+const DEFAULT_SPOTIFY_LOGO_WIDTH = 10;
 
 //Print results to the page
     //mode sets the array to print, ALBUM_LIST or ALBUM_LIST_BY_PERCENTAGE
@@ -481,6 +483,14 @@ function printResults(mode) {
         const img = new Image();
         img.src = array[album_id].album.images[0].url;
         div.appendChild(img);
+
+        const spotify_logo = new Image();
+        spotify_logo.src = CURRENT_URL.substring(0, CURRENT_URL.indexOf("#")) + "/Spotify_Logo.png";
+        spotify_logo.style.height = "auto";
+        spotify_logo.style.width = DEFAULT_SPOTIFY_LOGO_WIDTH + "vmin";
+        spotify_logo.style.top = "20vmin";    
+        spotify_logo.id = "spotify_logo";  
+        div.appendChild(spotify_logo);
 
         //Append album name to div
         var name = document.createElement("h1");
@@ -838,14 +848,17 @@ const DEFAULT_H4_FONT_SIZE = pixelsToVmin(getComputedStyle(H4_ELEMENT).fontSize)
 
 //Function for repositioning text so that it is exactly 1vmin to the right of the album art
     //This is because not all albums art have a standard size for some reason
-function positionTextBasedOnAlbumWidth(img_element, text_element) {
+function positionStuffBasedOnAlbumWidth(img_element, text_element, spotify_element) {
 
     //Get the image left and width 
     img_left = pixelsToVmin(getComputedStyle(img_element).left)
     img_width = pixelsToVmin(img_element.offsetWidth);
-
+    
     //Reposition the text
     text_element.style.left = img_left + img_width + 1 + "vmin";
+
+    const spotify_offset = 0.5 * (img_width - DEFAULT_SPOTIFY_LOGO_WIDTH);
+    spotify_element.style.left = 1 + spotify_offset + "vmin";
 
 }
 
@@ -856,12 +869,15 @@ function fitText(div, text_element) {
     const img_element = div.getElementsByTagName("img")[0];
     const img_loaded = img_element.complete && img_element.naturalHeight !== 0;
 
+    const spotify_logo = div.querySelector("#spotify_logo");
+    console.log(spotify_logo.offsetWidth);
+
     //Position the text if the image has been loaded
     if (img_loaded)
-        positionTextBasedOnAlbumWidth(img_element, text_element)
+        positionStuffBasedOnAlbumWidth(img_element, text_element, spotify_logo)
     else    //If it hasn't been loaded, add an event listener to position text once image is loaded
         img_element.addEventListener('load', function() { 
-            positionTextBasedOnAlbumWidth(img_element, text_element);
+            positionStuffBasedOnAlbumWidth(img_element, text_element, spotify_logo);
         }, false);
 
     //First, set its fontSize to the default

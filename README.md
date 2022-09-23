@@ -1,4 +1,4 @@
-# Top-Spotify-Albums
+# Top Albums
 A website that allows you to see which albums you have the most number of songs saved from on Spotify
 
 ## Table of Contents

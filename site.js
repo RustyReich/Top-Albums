@@ -510,7 +510,13 @@ function printResults(mode) {
 
 
         spotify_logo.addEventListener('touchend', function() {
+
             this.style.backgroundColor = "#181818";
+        
+            const album_id = Number(this.parentElement.id.substring("album_div_".length));
+
+            window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+        
         }, false);
 
         spotify_logo.addEventListener('click', function() {

@@ -488,9 +488,38 @@ function printResults(mode) {
         spotify_logo.src = CURRENT_URL.substring(0, CURRENT_URL.indexOf("#")) + "/Spotify_Logo.png";
         spotify_logo.style.height = "auto";
         spotify_logo.style.width = DEFAULT_SPOTIFY_LOGO_WIDTH + "vmin";
-        spotify_logo.style.top = "20vmin";    
-        spotify_logo.id = "spotify_logo";  
+        spotify_logo.style.top = "19.5vmin";    
+        spotify_logo.id = "spotify_logo";
+        spotify_logo.style.border = "solid"
+        spotify_logo.style.borderColor = "#1db954";
+        spotify_logo.style.borderRadius = "3vmin";
+        spotify_logo.style.borderWidth = "0.3vmin";
+        spotify_logo.style.padding = "0.3vmin 1vmin 0.3vmin 1vmin";
+        spotify_logo.style.backgroundColor = "#181818";
         div.appendChild(spotify_logo);
+
+        spotify_logo.addEventListener('mouseover', function() {
+            this.style.backgroundColor = "#282828";
+        }, false);
+        spotify_logo.addEventListener('mouseout', function() {
+            this.style.backgroundColor = "#181818";
+        }, false);
+        spotify_logo.addEventListener('touchstart', function() {
+            this.style.backgroundColor = "#282828";
+        }, false);
+
+
+        spotify_logo.addEventListener('touchend', function() {
+            this.style.backgroundColor = "#181818";
+        }, false);
+
+        spotify_logo.addEventListener('click', function() {
+            
+            const album_id = Number(this.parentElement.id.substring("album_div_".length));
+
+            window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+
+        }, false);
 
         //Append album name to div
         var name = document.createElement("h1");
@@ -857,7 +886,7 @@ function positionStuffBasedOnAlbumWidth(img_element, text_element, spotify_eleme
     //Reposition the text
     text_element.style.left = img_left + img_width + 1 + "vmin";
 
-    const spotify_offset = 0.5 * (img_width - DEFAULT_SPOTIFY_LOGO_WIDTH);
+    const spotify_offset = 0.5 * (img_width - pixelsToVmin(spotify_element.clientWidth));
     spotify_element.style.left = 1 + spotify_offset + "vmin";
 
 }
@@ -870,7 +899,6 @@ function fitText(div, text_element) {
     const img_loaded = img_element.complete && img_element.naturalHeight !== 0;
 
     const spotify_logo = div.querySelector("#spotify_logo");
-    console.log(spotify_logo.offsetWidth);
 
     //Position the text if the image has been loaded
     if (img_loaded)

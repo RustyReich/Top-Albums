@@ -316,6 +316,7 @@ function sortByMostPercentage(low, high) {
 const DEFAULT_ALBUM_DIV_HEIGHT = 24;
 const DEFAULT_ALBUM_MARGIN_TOP = 1;
 
+//Default width of the spotify logo
 const DEFAULT_SPOTIFY_LOGO_WIDTH = 10;
 
 //Print results to the page
@@ -484,6 +485,7 @@ function printResults(mode) {
         img.src = array[album_id].album.images[0].url;
         div.appendChild(img);
 
+        //Append spotify logo to the div
         const spotify_logo = new Image();
         spotify_logo.src = CURRENT_URL.substring(0, CURRENT_URL.indexOf("#")) + "/Spotify_Logo.png";
         spotify_logo.style.height = "auto";
@@ -498,6 +500,8 @@ function printResults(mode) {
         spotify_logo.style.backgroundColor = "#181818";
         div.appendChild(spotify_logo);
 
+        //Set event listeners for changing the background color of the spotify logo with hovering
+        //over it
         spotify_logo.addEventListener('mouseover', function() {
             this.style.backgroundColor = "#282828";
         }, false);
@@ -508,7 +512,7 @@ function printResults(mode) {
             this.style.backgroundColor = "#282828";
         }, false);
 
-
+        //Set event listeners for clicking or tapping the spotify logo to open the album link
         spotify_logo.addEventListener('touchend', function() {
 
             this.style.backgroundColor = "#181818";
@@ -518,7 +522,6 @@ function printResults(mode) {
             window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
         
         }, false);
-
         spotify_logo.addEventListener('click', function() {
             
             const album_id = Number(this.parentElement.id.substring("album_div_".length));
@@ -892,6 +895,7 @@ function positionStuffBasedOnAlbumWidth(img_element, text_element, spotify_eleme
     //Reposition the text
     text_element.style.left = img_left + img_width + 1 + "vmin";
 
+    //Reposition the spotify logo so that it is centered with the album
     const spotify_offset = 0.5 * (img_width - pixelsToVmin(spotify_element.clientWidth));
     spotify_element.style.left = 1 + spotify_offset + "vmin";
 
@@ -904,6 +908,7 @@ function fitText(div, text_element) {
     const img_element = div.getElementsByTagName("img")[0];
     const img_loaded = img_element.complete && img_element.naturalHeight !== 0;
 
+    //Get the spotify_logo element for the current div
     const spotify_logo = div.querySelector("#spotify_logo");
 
     //Position the text if the image has been loaded
@@ -951,7 +956,7 @@ function resizeOnScreenText() {
     //Count number of albums currently visible on screen
     const num_of_albums = Object.keys(on_screen_album_ids).length;
 
-    //Resize on album's text at a time, every 1ms
+    //Resize one album's text at a time, every 1ms
     var div_id = on_screen_album_ids[0];
     const RESIZING_DIV_INTERVAL = setInterval(resizeText, 1);
     function resizeText() {
@@ -1005,7 +1010,7 @@ function resizeSongNames(div) {
     for (var i = 0; i < num_of_songs; i++)
         div.getElementsByTagName("h4")[i].style.fontSize = smallest_song_text_size + "vmin";
 
-    //Increase div_height by height of the songs_div to fit all songs in it
+    //Set div_height by using the height of the songs_div to fit all songs in it
     const songs = div.getElementsByTagName("body")[0];
     const songs_div_height = pixelsToVmin(getComputedStyle(songs).height);
     div.style.height = DEFAULT_ALBUM_DIV_HEIGHT + songs_div_height + "vmin";

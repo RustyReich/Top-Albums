@@ -523,7 +523,7 @@ function printResults(mode) {
         
         }, false);
         spotify_logo.addEventListener('click', function() {
-            
+
             const album_id = Number(this.parentElement.id.substring("album_div_".length));
 
             window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
@@ -554,9 +554,19 @@ function printResults(mode) {
             //Creates a touch event listener if the device is touch screen, otherwise create a mouse
             //listener
         if (isTouchDevice())
-            div.addEventListener('touchstart', selectionHandler, false);
+            div.addEventListener('touchstart', function(event) {
+
+                if (event.target.id != "spotify_logo")
+                    selectionHandler();
+
+            }, false);
         else
-            div.addEventListener('mousedown', selectionHandler, false);
+            div.addEventListener('mousedown', function(event) {
+
+                if (event.target.id != "spotify_logo")
+                    selectionHandler();
+
+            }, false);
 
         //Append div to album_images div
         document.getElementById("album_images").appendChild(div);

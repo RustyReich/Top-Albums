@@ -519,14 +519,20 @@ function printResults(mode) {
         
             const album_id = Number(this.parentElement.id.substring("album_div_".length));
 
-            window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+            if (mode == "most_songs")
+                window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+            else
+                window.open(ALBUM_LIST_BY_PERCENTAGE[album_id].album.external_urls.spotify, '_blank');
         
         }, false);
         spotify_logo.addEventListener('click', function() {
 
             const album_id = Number(this.parentElement.id.substring("album_div_".length));
 
-            window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+            if (mode == "most_songs")
+                window.open(ALBUM_LIST[album_id].album.external_urls.spotify, '_blank');
+            else
+                window.open(ALBUM_LIST_BY_PERCENTAGE[album_id].album.external_urls.spotify, '_blank');
 
         }, false);
 

@@ -13,13 +13,12 @@ A website that allows you to see which albums you have the most number of songs 
 <a name="Showcase"/>
 
 ## Showcase
-![Showcase](https://i.imgur.com/h9hsHKn.png)
+![Showcase](https://raw.githubusercontent.com/RustyReich/Top-Albums/main/Showcase.png)
 
 <a name="How_To_Use"/>
 
 ## How to Use
-- Visit the site at https://rustyreich.github.io/Top-Spotify-Albums/
-  - NOTE: My Spotify Web App is currently awaiting a quota extension and is therefore unable to be used by the public. Instructions on setting up the site with your own Spotify Web App ID will be listed below
+- Visit the site at https://rustyreich.github.io/Top-Albums/
 - Click or tap the `Login with Spotify` button
 - After loading, you shoud immediately see the 5 or so albums that you have the most songs saved from
 - Scroll through the list to see every album that you have at least 1 song saved from

@@ -48,9 +48,14 @@ function main() {
 
     //Add the "Hosted on GitHub" button
     const github_button = document.getElementById("github_button");
-    github_button.addEventListener('click', () => {
-        window.open("https://github.com/RustyReich/Top-Spotify-Albums", '_blank');
-    });
+    if (isTouchDevice())
+        github_button.addEventListener('touchend', () => {
+            window.open("https://github.com/RustyReich/Top-Spotify-Albums", '_blank');
+        })
+    else
+        github_button.addEventListener('click', () => {
+            window.open("https://github.com/RustyReich/Top-Spotify-Albums", '_blank');
+        });
 
     //If url does not have "#" in it, then we have not clicked the login button yet
     if (CURRENT_URL.indexOf("#") == -1) {
@@ -354,7 +359,10 @@ function printResults(mode) {
     //hover over it
     if (mode == "most_songs") {
 
-        most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
+        if (isTouchDevice())
+            most_percentage_button.addEventListener('touchend', mostPercentageButtonFunction, false);
+        else
+            most_percentage_button.addEventListener('click', mostPercentageButtonFunction, false);
 
         most_percentage_button.addEventListener('mouseover', mostPercentageMouseOver, false);
         most_percentage_button.addEventListener('mouseout', mostPercentageMouseOut, false);
@@ -362,7 +370,10 @@ function printResults(mode) {
     }
     else if (mode == "most_percentage") {
 
-        most_songs_button.addEventListener('click', mostSongsButtonFunction, false);
+        if (isTouchDevice())
+            most_songs_button.addEventListener('touchend', mostSongsButtonFunction, false);
+        else
+            most_songs_button.addEventListener('click', mostSongsButtonFunction, false);
 
         most_songs_button.addEventListener('mouseover', mostSongsMouseOver, false);
         most_songs_button.addEventListener('mouseout', mostSongsMouseOut, false);

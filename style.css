@@ -12,7 +12,7 @@
     text-align: left;
     text-indent: 1%;
     font-size: 5vmin;
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-family: serif;
 
     border-radius: 1vmin;
 
@@ -23,7 +23,7 @@
     background-color: #1db954;
 
     position: relative;
-    margin-left: -1.5vmin;
+    margin-left: 0vmin;
 
     width: auto;
     height: auto;
@@ -34,6 +34,7 @@
     font-size: 2vmin;
     color: black;
     text-decoration: none;
+    font-family: serif;
 
     border: none;
 

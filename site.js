@@ -444,7 +444,7 @@ function printResults(mode) {
     main_square.style.position = "absolute";
     main_square.style.margin = "0";
     main_square.style.left = "1vmin";
-    main_square.style.top = "15.5vmin";
+    main_square.style.top = "16vmin";
     main_square.style.bottom = "1vmin";
 
     //Set new formatting attributes for main_square

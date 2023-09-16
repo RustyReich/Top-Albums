@@ -12,7 +12,7 @@
     text-align: left;
     text-indent: 1%;
     font-size: 5vmin;
-    font-family: serif;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
     border-radius: 1vmin;
 
@@ -34,7 +34,7 @@
     font-size: 2vmin;
     color: black;
     text-decoration: none;
-    font-family: serif;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
     border: none;
 
@@ -195,6 +195,7 @@
     display: inline-block;
     font-size: 3vmin;
     cursor: pointer;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
 }
 
@@ -207,8 +208,8 @@
     top: 9vmin;
     left: 1%;
 
-    height: 5vmin;
-    width: 24vmin;
+    height: 6.25vmin;
+    width: 30vmin;
 
     white-space: nowrap;
     overflow: hidden;
@@ -220,8 +221,9 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 1.5vmin;
+    font-size: 2vmin;
     cursor: pointer;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
     background-color: #1db954;
 
@@ -234,10 +236,10 @@
     position: absolute;
     margin: 0;
     top: 9vmin;
-    left: 27vmin;
+    left: 35vmin;
 
-    height: 5vmin;
-    width: 24vmin;
+    height: 6.25vmin;
+    width: 30vmin;
 
     white-space: nowrap;
     overflow: hidden;
@@ -249,8 +251,9 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 1.5vmin;
+    font-size: 2vmin;
     cursor: pointer;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
 }
 
@@ -272,8 +275,8 @@
     right: 0;
     margin: auto;
 
-    width: 11vmin;
-    height: 11vmin;
+    width: 15vmin;
+    height: 15vmin;
 
     border-radius: 50%;
 
@@ -290,8 +293,8 @@
     right: 0;
     margin: auto;
 
-    width: 10.6vmin;
-    height: 10.6vmin;
+    width: 14vmin;
+    height: 14vmin;
 
     border-radius: 50%;
 
@@ -308,8 +311,8 @@
     right: 0;
     margin: auto;
 
-    width: 9.6vmin;
-    height: 9.6vmin;
+    width: 10vmin;
+    height: 10vmin;
 
     border-radius: 50%;
 
@@ -339,13 +342,13 @@
 
     position: absolute;
     top: 0;
-    bottom: 10.1vmin;
+    bottom: 12vmin;
     left: 0;
     right: 0;
     margin: auto;
 
-    width: 0.5vmin;
-    height: 0.5vmin;
+    width: 1.75vmin;
+    height: 1.75vmin;
 
     border-radius: 50%;
 
@@ -363,5 +366,6 @@
     transform: translate(-50%, -50%);
 
     font-size: 4vmin;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
 }

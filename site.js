@@ -401,8 +401,9 @@ function printResults(mode) {
             most_percentage_button.removeEventListener('mouseover', mostPercentageMouseOver, false);
             most_percentage_button.removeEventListener('mouseout', mostPercentageMouseOut, false);
             
-            //Remove click event listener for most_percentage_button
+            //Remove click and touch event listener for most_percentage_button
             most_percentage_button.removeEventListener('click', mostPercentageButtonFunction, false);
+            most_percentage_button.removeEventListener('touchend', mostPercentageButtonFunction, false);
 
             //Print albums in most_percentage mode
             printResults("most_percentage");
@@ -425,6 +426,7 @@ function printResults(mode) {
             most_songs_button.removeEventListener('mouseout', mostSongsMouseOut, false);
 
             most_songs_button.removeEventListener('click', mostSongsButtonFunction, false);
+            most_songs_button.removeEventListener('touchend', mostSongsButtonFunction, false);
 
             printResults("most_songs");
 

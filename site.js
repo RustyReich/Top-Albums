@@ -8,7 +8,7 @@ class album_entry {
         //The number of songs in the album the user has saved
         this.count = 1;
 
-        //Percentage of songs in the album the user has saved
+        //Percentage of songs in the album the user has saved~
         this.percentage;
 
         //Songs in the album the user has saved
@@ -742,7 +742,7 @@ function printResults(mode) {
                         //If the current song is saved by the user, display it in green
                             //We add a heart to the beginning to kind of mimic the spotify layout
                         const album = array[id];
-                        if (album.savedSongs.find(element => element.id == album.songs[i].id)) {
+                        if (album.savedSongs.find(element => element.name == album.songs[i].name)) {
 
                             song.style.color = "#78b159"
                             song.textContent = "💚 ";
